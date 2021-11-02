@@ -326,9 +326,7 @@ class TaskDependency(models.Model):
                     r.date_start = False
                     r.date_end = False
                 elif r.date_start:
-                    # r.date_start = r.date_start.strftime('%Y-%m-%d 00:00:00')
                     r.date_start = r.date_start # if task has no dependent tasks then it will use current task's date_start
-                    # print("********* r.date_start:- ", r.date_start)
             else:
                 if r.first_task != True and r.dependency_task_ids:
                     '''
@@ -341,7 +339,6 @@ class TaskDependency(models.Model):
                     first_element = completion_date_lst[0]
                     if task_count == 1 and len(completion_date_lst) == 1 and completion_date_lst[0] != False:
                         r.date_start = r.date_in_holiday(first_element)
-                        # print("####### r.date_start:- ", r.date_start)
                     elif False in completion_date_lst:
                         '''
                             If we have only one value in 'completion_date_lst' and the value is False
@@ -349,7 +346,6 @@ class TaskDependency(models.Model):
                         '''
                         if len(completion_date_lst) == 1 and completion_date_lst[0] == False:
                             r.date_start = r.date_in_holiday(r.dependency_task_ids.task_id.date_end)
-                            # print("$$$$$$$$$$ r.date_start:- ", r.date_start)
                         else:
                             '''
                                 If A1 completion date is set but A2 completion date is not set, 
@@ -363,15 +359,12 @@ class TaskDependency(models.Model):
                                     if occurrences == 1:
                                         if previous_el and previous_el != False:
                                             r.date_start = r.date_in_holiday(previous_el)
-                                            # print("@@@@@@@@@ r.date_start:- ", r.date_start)
                                         elif previous_el:
                                             # if occurrences are > 1 then, we will take max date from completion_date list
                                             max_comp_date = max(sorted(completion_date_lst))
                                             r.date_start = r.date_in_holiday(max_comp_date)
-                                            # print("!!!!!!!!! r.date_start:- ", r.date_start)
                                     else:
                                         r.date_start = r.date_in_holiday(previous_el)
-                                        # print("^^^^^^^ r.date_start:- ", r.date_start)
                     else:
                         for date_start in completion_date_lst:
                             if date_start != first_element and False not in completion_date_lst:
@@ -383,18 +376,16 @@ class TaskDependency(models.Model):
                                 '''
                                 max_date_start = max(sorted(completion_date_lst))
                                 r.date_start = r.date_in_holiday(max_date_start)
-                                # print("&&&&&&&&& r.date_start:- ", r.date_start)
                             elif date_start == False and False not in end_date_lst and len(completion_date_lst) == 0:
                                 max_end_date = max(sorted(end_date_lst))
                                 r.date_start = r.date_in_holiday(max_end_date)
-                                # print("######## r.date_start:- ", r.date_start)
                             else:
                                 '''
                                     If 'completion_date' of the previous tasks are same in the 'date_lst' then
                                     we simply set set 'date_start' as a 'first_element' + 1
                                 '''
                                 r.date_start = r.date_in_holiday(first_element)
-                                # print("%%%%%%%%%%% r.date_start:- ", r.date_start)
+
     @api.depends('planned_duration', 'buffer_time', 'on_hold', 'date_start')
     def _compute_end_date(self):
         '''
@@ -405,13 +396,10 @@ class TaskDependency(models.Model):
         '''
         for r in self:
             start_date = r.date_start
-            # self.date_end = self.get_forward_next_date(start_date)
             if r.first_task == True or start_date:
                 r.date_end = r.get_forward_next_date(start_date)
                 if r.date_end:
-                    # r.date_end = r.date_end.strftime('%Y-%m-%d 00:00:00')
                     r.date_end = r.date_end
-                    # print("&&&&&&&&&&& r.date_end:- ", r.date_end)
 
     @api.depends('l_end_date','l_start_date','planned_duration','milestone','scheduling_mode')
     def _compute_l_start_end_date(self):

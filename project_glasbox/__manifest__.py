@@ -23,8 +23,8 @@
         'security/task_security.xml',
         'security/ir.model.access.csv',
         'data/mail_template_data.xml',
-        'views/assets.xml',
         'views/task_views.xml',
+        'views/assets.xml',
     ],
     'qweb': [
         "static/src/xml/gantt_view.xml",
