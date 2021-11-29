@@ -254,8 +254,8 @@ class TaskDependency(models.Model):
                     if task_count == 0:
                         task.task_id.l_start_date =  False
                         task.task_id.l_end_date = False
-                    elif task.task_id.milestone                        task.task_id.l_start_date = r.date_in_holiday(l_start_cal)
-                        task.task_id.l_end_date = r.date_in_holiday(l_end_cal)
+                    elif task.task_id.milestone == False and task.task_id.l_start_date == False and task.task_id.l_end_date == False:
+                        task.task_id.l_start_date = r.date_in_holiday(l_start_cal)
 
     @api.depends('completion_date')
     def _compute_c_date(self):
