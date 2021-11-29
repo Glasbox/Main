@@ -57,18 +57,7 @@ var CustomGanttRow = GanttRow.extend({
                 const duration = pills[pill].planned_duration
                 const buffer = pills[pill].buffer_time
                 const hold = pills[pill].on_hold
-                // const l_end_date = 1
                 const wd = parseInt(100/(delay+duration+buffer+hold))
-                // console.log("!!!!!!!!!!!!!!! pills.l_end_date:- ", pills[pill].l_end_date)
-                // console.log("&&&&&&&&&&&&&&& pills.date_end:- ", pills[pill].date_end)
-                // const oneDay = 24 * 60 * 60 * 1000;
-                // const LEndDate = new Date(pills[pill].l_end_date['_i'])
-                // const DateEnd = new Date(pills[pill].date_end['_i'])
-                // console.log("^^^^^^^^^^^^^^^ LEndDate:- ", LEndDate)
-                // console.log("############### DateEnd:- ", DateEnd)
-                // const diff = Math.floor((Date.UTC(LEndDate.getFullYear(), LEndDate.getMonth(), LEndDate.getDate()) - Date.UTC(DateEnd.getFullYear(), DateEnd.getMonth(), DateEnd.getDate()) ) /(1000 * 60 * 60 * 24));
-                // console.log("%%%%%%%%%%%%% diff:- ", diff)
-                // pills.DiffDates = diff
                 pills.l_end_date = wd + 1
                 pills.delayWidth = delay * wd
                 pills.durationWidth = duration * wd
@@ -112,7 +101,6 @@ var CustomGanttRow = GanttRow.extend({
             }
 
             this.slots.push({
-                // diff: pills.DiffDates,
                 delay: pills.delayWidth,
                 buffer: pills.bufferWidth,
                 duration: pills.durationWidth,

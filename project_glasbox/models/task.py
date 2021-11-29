@@ -161,7 +161,9 @@ class TaskDependency(models.Model):
             resource_calendar = r.get_calendar()
             day_of_week = resource_calendar.attendance_ids.mapped('dayofweek')
             if date and str(date.weekday()) not in day_of_week:
-                date = date + timedelta(days=weekdays - date.weekday())
+                date = date + timedelta(days=1)
+                date = r.check_date_weekend(s_date)
+                # date = date + timedelta(days=weekdays - date.weekday())
             return date
 
     def date_in_holiday(self, date):
@@ -252,8 +254,7 @@ class TaskDependency(models.Model):
                     if task_count == 0:
                         task.task_id.l_start_date =  False
                         task.task_id.l_end_date = False
-                    elif task.task_id.milestone == False and task.task_id.l_start_date == False and task.task_id.l_end_date == False:
-                        task.task_id.l_start_date = r.date_in_holiday(l_start_cal)
+                    elif task.task_id.milestone                        task.task_id.l_start_date = r.date_in_holiday(l_start_cal)
                         task.task_id.l_end_date = r.date_in_holiday(l_end_cal)
 
     @api.depends('completion_date')
