@@ -1,7 +1,7 @@
 
 from datetime import timedelta, datetime, date
 from odoo.exceptions import ValidationError, UserError
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 import pytz
 
 class DependingTasks(models.Model):
@@ -78,7 +78,7 @@ class TaskDependency(models.Model):
             You will get holiday's date in list.
         '''
         for r in self:
-            if r.l_end_date:
+            if r.l_end_date or r.completion_date:
                 leaves = r.get_global_ids().filtered(lambda d: start_date and d.date_from.date() < start_date)
             else:
                 leaves = r.get_global_ids().filtered(lambda d: start_date and d.date_from.date() > start_date)
@@ -114,7 +114,6 @@ class TaskDependency(models.Model):
             Method for calculating the 'end_date' according to any 'start_date'
         '''
         for r in self:
-            work_days = r.get_work_days()
             duration = 0
             resource_calendar = r.get_calendar()
             day_of_week = resource_calendar.attendance_ids.mapped('dayofweek')
@@ -174,7 +173,6 @@ class TaskDependency(models.Model):
             If 'date' is not in holiday then we will increment date through one day and check that 'date' is in weekend or not. 
         '''
         for r in self:
-            work_days = r.get_work_days()
             holidays = r.get_holidays(date)
             if date and date not in holidays:
                 date += timedelta(days=1)
@@ -183,7 +181,6 @@ class TaskDependency(models.Model):
             for date in holidays:
                 date += timedelta(days=1)
                 date = r.check_date_weekend(date)
-
             return date
 
     def _send_mail_template(self):
@@ -219,7 +216,6 @@ class TaskDependency(models.Model):
                         })
                 tasks.write({'date_start': r.date_in_holiday(date_start)})
                 r._send_mail_template()
-
         return res
 
     @api.onchange('completion_date')
@@ -231,6 +227,13 @@ class TaskDependency(models.Model):
         ctx = self.env.context
         if ctx.get('c_date'):
             self.completion_date = datetime.now()
+            holidays = self.get_holidays(self.completion_date)
+            resource_calendar = self.get_calendar()
+            day_of_week = resource_calendar.attendance_ids.mapped('dayofweek')
+            if self.completion_date and str(self.completion_date.weekday()) not in day_of_week:
+                raise UserError(_('You can not set Completion Date Which is not in your Working days! Kindly Check your Company Calendar!'))
+            if self.completion_date and self.completion_date in holidays:
+                raise UserError(_('You can not set Completion Date Which is in Holidays! Kindly Check your Company Calendar!'))
 
     @api.onchange('dependency_task_ids')
     def onchange_changes(self):
@@ -313,7 +316,6 @@ class TaskDependency(models.Model):
             else:
                 task.check_ahead_schedule = False
 
-
     @api.depends('completion_date','date_end')
     def _compute_check_com_date(self):
         for task in self:
@@ -391,7 +393,6 @@ class TaskDependency(models.Model):
     def _compute_start_date(self):
         for r in self:
             task_count = r.count_tasks()
-            work_days = r.get_work_days()
             if task_count == 0:
                 if r.dependency_task_ids:
                     r.date_start = False
