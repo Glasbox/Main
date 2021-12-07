@@ -174,7 +174,7 @@
         <field name="model_id">project.task</field>
         <field name="user_id" eval="False"/>
         <field name="is_default" eval="False"/>
-        <field name="context">{'group_by': ['stage_id', 'user_id', 'name']}
+        <field name="context">{'group_by': ['project_id', 'stage_id', 'user_id', 'name']}
         </field>
         <field name="action_id" ref="project.act_project_project_2_project_task_all"/>
     </record>

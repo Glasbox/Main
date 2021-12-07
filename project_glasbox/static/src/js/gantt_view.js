@@ -57,12 +57,11 @@ var CustomGanttRow = GanttRow.extend({
                 const duration = pills[pill].planned_duration
                 const buffer = pills[pill].buffer_time
                 const hold = pills[pill].on_hold
-                const wd = parseInt(100/(delay+duration+buffer+hold))
-/*                pills.l_end_date = wd + 1*/
-                pills.delayWidth = delay * wd
-                pills.durationWidth = duration * wd
-                pills.bufferWidth = buffer * wd
-                pills.holdWidth = hold * wd
+/*                const wd = parseInt(100/(delay+duration+buffer+hold))*/
+                pills.delayWidth = delay * 100
+                pills.durationWidth = duration * 100
+                pills.bufferWidth = buffer * 100
+                pills.holdWidth = hold * 100
             }
         }
 
