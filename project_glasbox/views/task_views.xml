@@ -6,8 +6,9 @@
         <field name="model">project.task</field>
         <field name="priority">10</field>
         <field name="arch" type="xml">
+            <!-- check_end_or_comp_date value in date stop condition based-->
             <gantt date_start="date_start"
-                date_stop="date_end"
+                date_stop="check_end_or_comp_date"
                 default_scale="month"
                 scales="day,week,month,year"
                 color="project_color"

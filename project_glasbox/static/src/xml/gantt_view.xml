@@ -76,7 +76,7 @@
                 <div
                     t-att-data-id="pill.id"
                     t-attf-class="o_gantt_pill position-relative"
-                    t-attf-style="width: #{delay + '%'}; background-color: #{delay > 0 ? 'yellow' : '#71959e'}; #{widget.options.isGroup ? pill.style : ''}"
+                    t-attf-style="width: #{delay + '%'}; background-color: #{delay > 0 ? '#FFBF00' : '#71959e'}; #{widget.options.isGroup ? pill.style : ''}"
                     />
             </div>
         </xpath>

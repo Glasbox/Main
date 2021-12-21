@@ -76,7 +76,6 @@ var CustomGanttRow = GanttRow.extend({
         for (const date of this.viewInfo.slots) {
             const slotStart = date;
             const slotStop = date.clone().add(1, interval);
-            // debugger;
             const isToday = date.isSame(new Date(), 'day') && this.state.scale !== 'day';
             let slotStyle = '';
             if (!this.isGroup && this.unavailabilities.slice(index).length) {

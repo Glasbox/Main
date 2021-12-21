@@ -27,6 +27,7 @@ class TaskDependency(models.Model):
     date_start = fields.Datetime('Starting Date', compute='_compute_start_date', store=True)
     date_end = fields.Datetime('Ending Date', readonly=True, compute='_compute_end_date', store=True)
     completion_date = fields.Datetime('Completion Date')
+    check_end_or_comp_date = fields.Datetime('Checking End or Completion Date', compute='_compute_end_comp', store=True)
     milestone = fields.Boolean(string='Mark as Milestone', default=False)
     first_task = fields.Boolean(string='First Task', default=False)
     l_start_date = fields.Datetime('Latest Start Date',compute='_compute_l_start_end_date', store=True)
@@ -260,6 +261,14 @@ class TaskDependency(models.Model):
                     elif not task.task_id.milestone and not task.task_id.l_start_date and not task.task_id.l_end_date:
                         task.task_id.l_start_date = r.date_in_holiday(l_start_cal)
                         task.task_id.l_end_date = r.date_in_holiday(l_end_cal)
+
+    @api.depends('completion_date', 'date_end')
+    def _compute_end_comp(self):
+        for task in self:
+            if task.completion_date and task.date_end and task.completion_date > task.date_end:
+                task.check_end_or_comp_date = task.completion_date
+            else:
+                task.check_end_or_comp_date = task.date_end
 
     @api.depends('completion_date')
     def _compute_c_date(self):
