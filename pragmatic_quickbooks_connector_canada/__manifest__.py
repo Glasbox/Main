@@ -70,4 +70,14 @@ accounting app
     'price': 250,
     'installable': True,
     'auto_install': False,
+    
+    "cloc_exclude": [
+    "lib/common.py", # exclude a single file
+    "data/*.xml",    # exclude all XML files in a specific folder
+    "example/**/*",  # exclude all files in a folder hierarchy recursively
+    "**/*.scss",     # exclude all scss file from the module
+],
+    
+    
+    
 }
