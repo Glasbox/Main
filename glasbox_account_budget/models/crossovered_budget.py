@@ -32,11 +32,25 @@ class CrossoveredBudgetLines(models.Model):
 
     @api.depends('planned_amount','practical_amount')
     def _compute_theoritical_amount(self):
+        '''
+        PSUS custom modifications - overriding base method:
+            - modify @api.depends parameters to use planned_amount
+            and practical_amount instead of date_from and date_to
+            - theoritical_amount value is computed from using
+            planned_amount and the practical_amount; it does not
+            take take dates into consideration
+
+        '''
         for line in self:
             line.theoritical_amount = line.planned_amount - line.practical_amount
 
     @api.depends('planned_amount','practical_amount')
     def _compute_percentage(self):
+        '''
+        PSUS custom modifications - overriding base method:
+            - the percentage does not use theoritical_amount
+            as a condition
+        '''
         for line in self:
             if line.planned_amount != 0.00:
                 line.percentage = line.practical_amount/line.planned_amount 
@@ -59,6 +73,11 @@ class CrossoveredBudgetLines(models.Model):
         return action
 
     def _compute_practical_amount(self):
+        '''
+        PSUS custom modifications - overriding base method:
+            - practical_amount computation no longer uses the
+            Start Date and the End Date in the domain
+        '''
         for line in self:
             acc_ids = line.general_budget_id.account_ids.ids
             if line.analytic_account_id.id:
