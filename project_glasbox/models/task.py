@@ -43,9 +43,9 @@ class Project(models.Model):
             dependent_task = []
             # logic for setting current project on dependency_task's project_id
             for d_task in old.dependency_task_ids:
-                dependent_task = new_tasks.filtered(lambda x: x.name == d_task.task_id.name).id
+                dependent_tasks = new_tasks.filtered(lambda x: x.name == d_task.task_id.name).ids
                 task.write({
-                    'dependency_task_ids': [(0, 0, {'task_id': dependent_task})]
+                    'dependency_task_ids': [(0, 0, {'task_id': task_id}) for task_id in dependent_tasks]
                 })
         return project
 
