@@ -6,13 +6,15 @@ from odoo import models, fields, api
 class CrossoveredBudget(models.Model):
     _inherit = "crossovered.budget"
 
-    date_from = fields.Date('Start Date', required=False, states={'done': [('readonly', True)]})
-    date_to = fields.Date('End Date', required=False, states={'done': [('readonly', True)]})
+    date_from = fields.Date('Start Date', required=False, states={
+                            'done': [('readonly', True)]})
+    date_to = fields.Date('End Date', required=False, states={
+                          'done': [('readonly', True)]})
+
 
 class CrossoveredBudgetLines(models.Model):
     _inherit = "crossovered.budget.lines"
 
-    print('A print')
     date_from = fields.Date('Start Date', required=False)
     date_to = fields.Date('End Date', required=False)
     sale_ids = fields.Many2many('sale.order', string="Sale Orders")
@@ -22,7 +24,7 @@ class CrossoveredBudgetLines(models.Model):
         help="Amount you plan to earn/spend. Record a positive amount if it is a revenue and a negative amount if it is a cost.",
         compute="_compute_planned_amount")
 
-    @api.depends('sale_ids','purchase_ids','sale_ids.amount_untaxed','purchase_ids.amount_untaxed')
+    @api.depends('sale_ids', 'purchase_ids', 'sale_ids.amount_untaxed', 'purchase_ids.amount_untaxed')
     def _compute_planned_amount(self):
         for line in self:
             line.planned_amount = 0
@@ -31,30 +33,33 @@ class CrossoveredBudgetLines(models.Model):
             for purchase in line.purchase_ids:
                 line.planned_amount -= purchase.amount_untaxed
 
-    @api.depends('planned_amount','practical_amount')
+    @api.depends('planned_amount', 'practical_amount')
     def _compute_theoritical_amount(self):
         for line in self:
             line.theoritical_amount = line.planned_amount - line.practical_amount
 
-    @api.depends('planned_amount','practical_amount')
+    @api.depends('planned_amount', 'practical_amount')
     def _compute_percentage(self):
         for line in self:
             if line.planned_amount != 0.00:
-                line.percentage = line.practical_amount/line.planned_amount 
+                line.percentage = line.practical_amount/line.planned_amount
             else:
                 line.percentage = 0.00
 
     def action_open_budget_entries(self):
         if self.analytic_account_id:
             # if there is an analytic account, then the analytic items are loaded
-            action = self.env['ir.actions.act_window']._for_xml_id('analytic.account_analytic_line_action_entries')
+            action = self.env['ir.actions.act_window']._for_xml_id(
+                'analytic.account_analytic_line_action_entries')
             action['domain'] = [('account_id', '=', self.analytic_account_id.id),
                                 ]
             if self.general_budget_id:
-                action['domain'] += [('general_account_id', 'in', self.general_budget_id.account_ids.ids)]
+                action['domain'] += [('general_account_id',
+                                      'in', self.general_budget_id.account_ids.ids)]
         else:
             # otherwise the journal entries booked on the accounts of the budgetary postition are opened
-            action = self.env['ir.actions.act_window']._for_xml_id('account.action_account_moves_all_a')
+            action = self.env['ir.actions.act_window']._for_xml_id(
+                'account.action_account_moves_all_a')
             action['domain'] = [('account_id', 'in', self.general_budget_id.account_ids.ids),
                                 ]
         return action
@@ -72,7 +77,8 @@ class CrossoveredBudgetLines(models.Model):
                 where_query = analytic_line_obj._where_calc(domain)
                 analytic_line_obj._apply_ir_rules(where_query, 'read')
                 from_clause, where_clause, where_clause_params = where_query.get_sql()
-                select = "SELECT SUM(amount) from " + from_clause + " where " + where_clause
+                select = "SELECT SUM(amount) from " + \
+                    from_clause + " where " + where_clause
                 self.env.cr.execute(select, where_clause_params)
                 line.practical_amount = self.env.cr.fetchone()[0] or 0.0
             else:

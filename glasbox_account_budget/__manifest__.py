@@ -17,8 +17,8 @@
     'website': "http://www.odoo.com",
     'category': 'Customizations',
     'license': 'OEEL-1',
-    'version': '0.1',
-    'depends': ['account_budget', 'purchase', 'sale_management'],
+    'version': '1.0.2',
+    'depends': ['account_budget', 'purchase', 'sale_management', 'account_accountant', 'project'],
     'data': [
         'views/sale_views.xml',
         'views/purchase_views.xml',
