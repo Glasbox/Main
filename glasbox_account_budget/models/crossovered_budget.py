@@ -6,10 +6,8 @@ from odoo import models, fields, api
 class CrossoveredBudget(models.Model):
     _inherit = "crossovered.budget"
 
-    date_from = fields.Date('Start Date', required=False, states={
-                            'done': [('readonly', True)]})
-    date_to = fields.Date('End Date', required=False, states={
-                          'done': [('readonly', True)]})
+    date_from = fields.Date('Start Date', required=False, states={'done': [('readonly', True)]})
+    date_to = fields.Date('End Date', required=False, states={'done': [('readonly', True)]})
 
 
 class CrossoveredBudgetLines(models.Model):
@@ -51,17 +49,14 @@ class CrossoveredBudgetLines(models.Model):
             # if there is an analytic account, then the analytic items are loaded
             action = self.env['ir.actions.act_window']._for_xml_id(
                 'analytic.account_analytic_line_action_entries')
-            action['domain'] = [('account_id', '=', self.analytic_account_id.id),
-                                ]
+            action['domain'] = [('account_id', '=', self.analytic_account_id.id),]
             if self.general_budget_id:
-                action['domain'] += [('general_account_id',
-                                      'in', self.general_budget_id.account_ids.ids)]
+                action['domain'] += [('general_account_id','in', self.general_budget_id.account_ids.ids)]
         else:
             # otherwise the journal entries booked on the accounts of the budgetary postition are opened
             action = self.env['ir.actions.act_window']._for_xml_id(
                 'account.action_account_moves_all_a')
-            action['domain'] = [('account_id', 'in', self.general_budget_id.account_ids.ids),
-                                ]
+            action['domain'] = [('account_id', 'in', self.general_budget_id.account_ids.ids),]
         return action
 
     def _compute_practical_amount(self):
@@ -69,8 +64,7 @@ class CrossoveredBudgetLines(models.Model):
             acc_ids = line.general_budget_id.account_ids.ids
             if line.analytic_account_id.id:
                 analytic_line_obj = self.env['account.analytic.line']
-                domain = [('account_id', '=', line.analytic_account_id.id),
-                          ]
+                domain = [('account_id', '=', line.analytic_account_id.id),]
                 if acc_ids:
                     domain += [('general_account_id', 'in', acc_ids)]
 
