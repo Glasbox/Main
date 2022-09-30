@@ -43,9 +43,9 @@ class Project(models.Model):
             dependent_task = []
             # logic for setting current project on dependency_task's project_id
             for d_task in old.dependency_task_ids:
-                dependent_task = new_tasks.filtered(lambda x: x.name == d_task.task_id.name).id
+                dependent_tasks = new_tasks.filtered(lambda x: x.name == d_task.task_id.name).ids
                 task.write({
-                    'dependency_task_ids': [(0, 0, {'task_id': dependent_task})]
+                    'dependency_task_ids': [(0, 0, {'task_id': task_id}) for task_id in dependent_tasks]
                 })
         return project
 
@@ -109,21 +109,32 @@ class TaskDependency(models.Model):
         res = super().write(vals)
         for record in self:
             # Update record's dependencies latest start/end dates
-            if 'l_start_date' in vals and vals['l_start_date'] or 'l_end_date' in vals and vals['l_end_date']:
-                record._l_start_end_date()
-
+            if 'l_start_date' in vals and vals['l_start_date']:
+                record._l_start_date()
+            if 'l_end_date' in vals and vals['l_end_date']:
+                record._l_end_date()
             if 'completion_date' in vals and vals['completion_date']:
                 record._send_mail_template()
         return res
 
 
-    def _l_start_end_date(self):
+    def _l_start_date(self):
         """
-        This method gets called when the record is updated/written and updates all of its dependencies latest start/end dates.
+        This method gets called when the record is updated/written and updates all of its dependencies latest start dates.
 
         For non-milestone task, 'l_start_date' will be calculated when the milestone tasks’ Latest start/end date gets inserted.
         Use the current task calculated Latest end date - current task Duration (but not buffer time) - current task On hold (if any).
         Read-only field for non-milestone tasks.
+        """
+        for record in self:
+            if record.dependency_task_ids and record.l_start_date:
+                for task in record.dependency_task_ids:
+                    duration = timedelta(task.task_id.planned_duration) - timedelta(task.task_id.on_hold)
+                    task.task_id.write({'l_start_date': task.task_id.get_backward_next_date(task.task_id.l_end_date, duration.days)})
+
+    def _l_end_date(self):
+        """
+        This method gets called when the record is updated/written and updates all of its dependencies latest end dates.
 
         For non-milestone task, 'l_end_date' is calculate with the next tasks’ latest start date minus one business day.
         This will be the read-only field.
@@ -132,8 +143,6 @@ class TaskDependency(models.Model):
             if record.dependency_task_ids and record.l_start_date:
                 for task in record.dependency_task_ids:
                     task.task_id.write({'l_end_date': task.task_id.get_previous_business_day(record.l_start_date)})
-                    duration = timedelta(task.task_id.planned_duration) - timedelta(task.task_id.on_hold)
-                    task.task_id.write({'l_start_date': task.task_id.get_backward_next_date(task.task_id.l_end_date, duration.days)})
 
 
     def _compute_holiday_days(self):

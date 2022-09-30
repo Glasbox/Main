@@ -3,7 +3,7 @@
 import unittest
 from odoo.addons.account_budget.tests.test_theoreticalamount import TestTheoreticalAmount
 
-@unittest.skip('LOL')
+@unittest.skip('Skip')
 def unit_pass(self):
     pass
 
