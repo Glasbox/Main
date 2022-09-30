@@ -39,7 +39,6 @@ class PurchaseOrder(models.Model):
             all_budget_lines = self.env['crossovered.budget.lines'].search(
                     [('analytic_account_id', 'in', analytical_accounts_ids), ('general_budget_id', 'in', all_budget_positions.ids)])
             all_old_lines = self.env['crossovered.budget.lines'].search([('purchase_ids', 'in', self.ids)])
-            print(all_budget_positions, all_budget_lines, all_old_lines)
 
             #Iterate over the recordset to modify the propper values.
             for purchase in self:
