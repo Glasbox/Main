@@ -1,21 +1,27 @@
 .btn-finished{
 	color: #2AAA8A;
 }
+
 .btn-delay{
 	color: #F0E130;
 }
+
 .btn-early{
 	color: #00FFFF;
 }
+
 .btn-milestone{
 	color: #AAFF00;
 }
+
 .btn-hold{
 	color: #000000;
 }
+
 .btn-overdue{
 	color: #FF0000;
 }
+
 .btn-schedule{
 	color: #0000FF;
 }
