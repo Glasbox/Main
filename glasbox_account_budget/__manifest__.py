@@ -9,7 +9,7 @@
     'description': """
         Task ID: 2528354
         1) Glasbox will set up an analytic account for a project and use the analytic account for vendor bills and invoices associated with the project. 
-           Glasbox will manually add the budget number (planned amount) for each project to the budgetary positions.
+        1.5) Glasbox will manually add the budget number (planned amount) for each project to the budgetary positions.
         2) The budget overview for the project will show the planned amount and the practical amount as usual but instead of the theoretical amount and the percentage, it will show the remaining available budget, and the percentage of the “used” budget.
     """,
 
@@ -17,8 +17,14 @@
     'website': "http://www.odoo.com",
     'category': 'Customizations',
     'license': 'OEEL-1',
-    'version': '0.1',
-    'depends': ['account_budget', 'purchase', 'sale_management'],
+    'version': '1.0.2',
+    'depends': [
+        'account_budget', 
+        'purchase', 
+        'sale_management', 
+        'account_accountant',
+         'project'
+         ],
     'data': [
         'views/sale_views.xml',
         'views/purchase_views.xml',
