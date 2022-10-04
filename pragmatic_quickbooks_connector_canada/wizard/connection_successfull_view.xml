@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="connection_successfull_view" model="ir.ui.view">
+			<field name="name">connection.successfull.view</field>
+			<field name="model">res.company.message</field>
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<div>
+					<b> Your connection is successful !!!!</b>
+				</div>
+				<footer>
+					<button string="Ok" class="btn-default" special="cancel" />
+				</footer>
+			</field>
+		</record>
+		
+		<record id="import_successfull_view" model="ir.ui.view">
+			<field name="name">import.successfull.view</field>
+			<field name="model">res.company.message</field>
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<div>
+					<b> Your import was successfully completed !!!!</b>
+				</div>
+				<footer>
+					<button string="Ok" class="btn-default" special="cancel" />
+				</footer>
+			</field>
+		</record>
+		
+		<record id="export_successfull_view" model="ir.ui.view">
+			<field name="name">rexport.successfull.view</field>
+			<field name="model">res.company.message</field>
+			<field name="type">form</field>
+			<field name="arch" type="xml">
+				<div>
+					<b> Your export was succesfully completed !!!!</b>
+				</div>
+				<footer>
+					<button string="Ok" class="btn-default" special="cancel" />
+				</footer>
+			</field>
+		</record>
+
+
+		<record id="connection_successfull_action" model="ir.actions.act_window">
+			<field name="name">Connection Successfull</field>
+			<!-- <field name="type">ir.actions.act_window</field> -->
+			<field name="res_model">res.company.message</field>
+			<field name="view_mode">form</field>
+			<field name="view_id" ref="connection_successfull_view" />
+			<field name="target">new</field>
+		</record>
+
+	</data>
+</odoo>
