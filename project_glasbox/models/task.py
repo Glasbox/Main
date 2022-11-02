@@ -111,8 +111,7 @@ class TaskDependency(models.Model):
             # Update record's dependencies latest start/end dates
             if 'l_start_date' in vals and vals['l_start_date']:
                 record._l_start_date()
-            if 'l_end_date' in vals and vals['l_end_date']:
-                record._l_end_date()
+            record._l_end_date()
             if 'completion_date' in vals and vals['completion_date']:
                 record._send_mail_template()
         return res
