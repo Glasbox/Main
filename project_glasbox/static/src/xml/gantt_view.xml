@@ -78,6 +78,11 @@
                     t-attf-class="o_gantt_pill position-relative"
                     t-attf-style="width: #{delay + '%'}; background-color: #{delay > 0 ? '#FFBF00' : '#71959e'}; #{widget.options.isGroup ? pill.style : ''}"
                     />
+                <div
+                    t-att-data-id="pill.id"
+                    t-attf-class="o_gantt_pill position-relative"
+                    t-attf-style="width: #{early + '%'}; background-color: #{early > 0 ? '#00BF00' : '#71959e'}; #{widget.options.isGroup ? pill.style : ''}"
+                    />
             </div>
         </xpath>
         <xpath expr="//div[@t-if='!widget.options.hideSidebar']" position="after">
@@ -101,7 +106,7 @@
                 <div t-if="!widget.options.hideSidebar" t-attf-class="col-1 o_gantt_row_sidebar flex-grow-1 flex-shrink-0 position-relative #{!widget.name ? 'o_gantt_row_sidebar_empty' : '' }" t-attf-style="white-space: nowrap;">
                     <div class="text-center">
                         <t t-foreach="widget.pills" t-as="pill">
-                            <span t-if="pill.date_start" t-esc="pill.date_start.format('DD/MM/YYYY')"/>
+                            <span t-if="pill.date_start" t-esc="pill.date_start.format('MM/DD/YYYY')"/>
                             <t t-if="!widget.isGroup"><br/></t>
                         </t>
                     </div>
@@ -109,7 +114,7 @@
                 <div t-if="!widget.options.hideSidebar" t-attf-class="col-1 o_gantt_row_sidebar flex-grow-1 flex-shrink-0 position-relative #{!widget.name ? 'o_gantt_row_sidebar_empty' : '' }" t-attf-style="white-space: nowrap;">
                     <div class="text-center">
                         <t t-foreach="widget.pills" t-as="pill">
-                            <span t-if="pill.date_end" t-esc="pill.date_end.format('DD/MM/YYYY')"/>
+                            <span t-if="pill.date_end" t-esc="pill.date_end.format('MM/DD/YYYY')"/>
                             <t t-if="!widget.isGroup"><br/></t>
                         </t>
                     </div>
@@ -117,7 +122,7 @@
                 <div t-if="!widget.options.hideSidebar" t-attf-class="col-1 o_gantt_row_sidebar flex-grow-1 flex-shrink-0 position-relative #{!widget.name ? 'o_gantt_row_sidebar_empty' : '' }" t-attf-style="white-space: nowrap;">
                     <div class="text-center">
                         <t t-foreach="widget.pills" t-as="pill">
-                            <span t-if="pill.completion_date" t-esc="pill.completion_date.format('DD/MM/YYYY')"/>
+                            <span t-if="pill.completion_date" t-esc="pill.completion_date.format('MM/DD/YYYY')"/>
                             <t t-if="!widget.isGroup"><br/></t>
                         </t>
                     </div>

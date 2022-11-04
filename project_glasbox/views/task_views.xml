@@ -111,6 +111,13 @@
                                     <field name="relation_type" readonly='1'/>
                                 </tree>
                             </field>
+                            
+                            <field name="dependent_task_ids" readonly='1'>
+                                <tree>
+                                    <field name="depending_task_id" />
+                                </tree>
+                            </field>
+                  
                         </group>
                     </group>
                 </page>
@@ -145,7 +152,7 @@
             </xpath>
         </field>
     </record>
-
+ 
     <function name="write" model="ir.model.data">
         <function name="search" model="ir.model.data">
             <value eval="[('module', '=', 'project'), ('name', '=', 'act_project_project_2_project_task_all')]"/>
