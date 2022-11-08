@@ -106,6 +106,12 @@ class TaskDependency(models.Model):
             if ctx.get('c_date') and record.completion_date:
                 record.completion_date = datetime.now()
                 # record._check_date_in_holiday(record.completion_date)
+    # CHANGE REQ - 2952592 - MARW BEGIN
+        for child in self.dependent_task_ids.depending_task_id.ids:
+            task = self.env['project.task'].search([('id','=', child)])
+            task.date_start = (self.get_next_business_day(datetime.now())).replace(hour=7, minute=0)
+            task.date_end = (self.get_forward_next_date(task.date_start, task.planned_duration - 1)).replace(hour=16, minute=0) 
+    # CHANGE REQ - 2952592 - MARW END
 
     #OVERWRITE
     def write(self, vals):
