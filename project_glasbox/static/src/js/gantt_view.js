@@ -47,7 +47,7 @@ odoo.define('project_glasbox.ProjectGanttView', function (require) {
                 }
             }
 
-            for (const pill of pills) {
+            for (const pill in pills) {
                 if (pills && pills[pill].task_delay > 0 || pills[pill].planned_duration > 0 || pills[pill].buffer_time > 0 || pills[pill].on_hold > 0) {
                     const delay = pills[pill].task_delay
                     const duration = pills[pill].planned_duration
