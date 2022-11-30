@@ -59,8 +59,8 @@ odoo.define('project_glasbox.ProjectGanttView', function (require) {
                     const hold = pills[pill].on_hold
 
                     // CHANGE REQ - 2952592 - MARW BEGIN
-                    const early = -(pills[pill].task_delay)
-                    pills.earlyWidth = early * 100
+                    const early = -(pills[pill].task_delay) + 1
+                    //pills.earlyWidth = early * 100
                     // CHANGE REQ - 2952592 - MARW END
                     /* const wd = parseInt(100/(delay+duration+buffer+hold))*/
                     pills.delayWidth = delay * 100
@@ -69,9 +69,9 @@ odoo.define('project_glasbox.ProjectGanttView', function (require) {
                     pills.holdWidth = hold * 100
                     // CHANGE REQ - 2952592 - MARW BEGIN
                     if (pills[pill].check_ahead_schedule) { // completed before end date
-                        pills.earlyWidth = (.5 + Math.abs(delay + duration)) * 100
+                        pills.earlyWidth = (early) * 100
                         pills.delayWidth = 0
-                        pills.durationWidth = (Math.abs(delay + duration) - 1.5) * 100
+                        pills.durationWidth = duration * 100
                         pills.bufferWidth = 0
                         pills.holdWidth = 0
                         if (pills[pill].check_before_start) { // completed before start date                           

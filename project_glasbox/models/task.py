@@ -107,6 +107,12 @@ class TaskDependency(models.Model):
                 record.completion_date = datetime.now()
                 # record._check_date_in_holiday(record.completion_date)
     # CHANGE REQ - 2952592 - MARW BEGIN
+                if record.check_ahead_schedule:
+                    record.planned_duration = (record.completion_date - record.date_start).days + 2
+                if record.check_before_start:
+                    record.planned_duration = 1
+                    record.date_start = (record.completion_date) 
+
         for child in self.dependent_task_ids.depending_task_id.ids:
             task = self.env['project.task'].search([('id','=', child)])
             task.date_start = (self.get_next_business_day(datetime.now())).replace(hour=7, minute=0)
@@ -378,15 +384,20 @@ class TaskDependency(models.Model):
         for task in self:
             if task.completion_date and task.date_end and task.completion_date < task.date_end:
                 task.check_ahead_schedule = True
+                # CHANGE REQ 2952592 -MARW START
+                #task.planned_duration = (task.completion_date - task.date_start).days
                 if task.completion_date < task.date_start:
                     task.check_before_start = True
-                    task.planned_duration = 1
+                    #task.planned_duration = 1
+                # change start and end date to completed date
+                    #task.date_start = (task.completion_date).replace(hour=7, minute=0)
+                    #task.date_end = (task.completion_date).replace(hour=16, minute=0)
                 else:
                     task.check_before_start = False
             else:
                 task.check_ahead_schedule = False
                 task.check_before_start = False
-
+                # CHANGE REQ 2952592 -MARW END
     @api.depends('completion_date', 'date_end')
     def _compute_delay(self):
         """
