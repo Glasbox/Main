@@ -126,6 +126,7 @@ class TaskDependency(models.Model):
             # Update record's dependencies latest start/end dates
             if 'l_start_date' in vals and vals['l_start_date']:
                 record._l_start_date()
+                record._l_end_date()
             if 'l_end_date' in vals and vals['l_end_date']:
                 record._l_end_date()
             if 'completion_date' in vals and vals['completion_date']:
@@ -481,7 +482,7 @@ class TaskDependency(models.Model):
             l_start_date = l_end_date - planned_duration
         """
         for record in self:
-            if record.milestone and record.scheduling_mode == '1' and record.l_end_date:
+            if record.l_end_date:
                 record._check_date_in_holiday(record.l_end_date)
                 record.l_start_date = record.get_backward_next_date(record.l_end_date, record.planned_duration)
 
@@ -495,7 +496,7 @@ class TaskDependency(models.Model):
             l_end_date = l_date_start + planned_duration
         """
         for record in self:
-            if record.milestone and record.scheduling_mode == '0' and record.l_start_date:
+            if record.l_start_date:
                 record._check_date_in_holiday(record.l_start_date)
                 record.l_end_date = record.get_forward_next_date(record.l_start_date, record.planned_duration)
 
