@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../../versions/14.0/enterprise"
+		},
+		{
+			"path": "../../../versions/14.0/odoo/addons"
+		}
+	],
+	"settings": {}
+}

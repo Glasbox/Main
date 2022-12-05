@@ -55,7 +55,7 @@ class DependingTasks(models.Model):
 
     task_id = fields.Many2one('project.task', required=True, copy=True)
     project_id = fields.Many2one('project.project', string='Project', related='task_id.project_id')
-    depending_task_id = fields.Many2one('project.task', required=True)
+    depending_task_id = fields.Many2one('project.task', string='Task',required=True)
     relation_type = fields.Char('Relation', default="Finish To Start")
 
 
@@ -68,7 +68,7 @@ class TaskDependency(models.Model):
     accumulated_delay = fields.Integer(string='Accumulated Delay', compute='_compute_accumulated_delay', store=True, copy=True)
     on_hold = fields.Integer(string="On Hold", copy=True)
     dependency_task_ids = fields.One2many('project.depending.tasks', 'depending_task_id', string="Dependent Task", copy=False)
-    dependent_task_ids = fields.One2many('project.depending.tasks', 'task_id', string="Dependent Task", copy=False)
+    dependent_task_ids = fields.One2many('project.depending.tasks', 'task_id', string="Following Task", copy=False)
     date_start = fields.Datetime(string='Starting Date', compute='_compute_start_date', store=True, copy=True)
     date_end = fields.Datetime(string='Ending Date', readonly=True, compute='_compute_end_date', store=True, copy=True)
     completion_date = fields.Datetime(string='Completion Date', copy=True)
@@ -90,6 +90,9 @@ class TaskDependency(models.Model):
         ("1", "Must Finish On"),
     ], string="Scheduling Mode", copy=True)
     holiday_days = fields.Boolean(compute="_compute_holiday_days")
+    # CHANGE REQ - 2952592 - MARW BEGIN
+    check_before_start = fields.Boolean(string='Check Completion Before Start Date', copy=True)
+    # CHANGE REQ - 2952592 - MARW END
 
 
     @api.onchange('completion_date')
@@ -103,6 +106,18 @@ class TaskDependency(models.Model):
             if ctx.get('c_date') and record.completion_date:
                 record.completion_date = datetime.now()
                 # record._check_date_in_holiday(record.completion_date)
+    # CHANGE REQ - 2952592 - MARW BEGIN
+                if record.check_ahead_schedule:
+                    record.planned_duration = (record.completion_date - record.date_start).days + 2
+                if record.check_before_start:
+                    record.planned_duration = 1
+                    record.date_start = (record.completion_date) 
+
+        for child in self.dependent_task_ids.depending_task_id.ids:
+            task = self.env['project.task'].search([('id','=', child)])
+            task.date_start = (self.get_next_business_day(datetime.now())).replace(hour=7, minute=0)
+            task.date_end = (self.get_forward_next_date(task.date_start, task.planned_duration - 1)).replace(hour=16, minute=0) 
+    # CHANGE REQ - 2952592 - MARW END
 
     #OVERWRITE
     def write(self, vals):
@@ -370,9 +385,20 @@ class TaskDependency(models.Model):
         for task in self:
             if task.completion_date and task.date_end and task.completion_date < task.date_end:
                 task.check_ahead_schedule = True
+                # CHANGE REQ 2952592 -MARW START
+                #task.planned_duration = (task.completion_date - task.date_start).days
+                if task.completion_date < task.date_start:
+                    task.check_before_start = True
+                    #task.planned_duration = 1
+                # change start and end date to completed date
+                    #task.date_start = (task.completion_date).replace(hour=7, minute=0)
+                    #task.date_end = (task.completion_date).replace(hour=16, minute=0)
+                else:
+                    task.check_before_start = False
             else:
                 task.check_ahead_schedule = False
-
+                task.check_before_start = False
+                # CHANGE REQ 2952592 -MARW END
     @api.depends('completion_date', 'date_end')
     def _compute_delay(self):
         """

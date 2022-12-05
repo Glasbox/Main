@@ -29,23 +29,27 @@ odoo.define('project_glasbox.ProjectGanttView', function (require) {
                     return d ? '#e9ecef; z-index: 1' : '#ffffff';
                 }
                 const sum = subSlotUnavailabilities.reduce((acc, d) => acc + d);
-                const halves = 2;
-                const quarters = 4;
                 if (!sum) {
                     return '';
                 }
                 if (cellPart === sum) {
                     return `background: ${color(1)}`;
                 }
-                if (cellPart === halves) {
+                if (cellPart === 2) {
                     const [c0, c1] = subSlotUnavailabilities.map(color);
                     return `background: linear-gradient(90deg, ${c0} 49%, ${c1} 50%);`
                 }
-                if (cellPart === quarters) {
+                if (cellPart === 4) {
                     const [c0, c1, c2, c3] = subSlotUnavailabilities.map(color);
                     return `background: linear-gradient(90deg, ${c0} 24%, ${c1} 25%, ${c1} 49%, ${c2} 50%, ${c2} 74%, ${c3} 75%);`
                 }
             }
+
+            // const date_diff_indays = function(date1, date2) {
+            // dt1 = new Date(date1);
+            // dt2 = new Date(date2);
+            // return Math.floor((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) ) /(1000 * 60 * 60 * 24));
+            // }
 
             for (const pill in pills) {
                 if (pills && pills[pill].task_delay > 0 || pills[pill].planned_duration > 0 || pills[pill].buffer_time > 0 || pills[pill].on_hold > 0) {
@@ -53,10 +57,34 @@ odoo.define('project_glasbox.ProjectGanttView', function (require) {
                     const duration = pills[pill].planned_duration
                     const buffer = pills[pill].buffer_time
                     const hold = pills[pill].on_hold
+
+                    // CHANGE REQ - 2952592 - MARW BEGIN
+                    const early = -(pills[pill].task_delay) + 1
+                    //pills.earlyWidth = early * 100
+                    // CHANGE REQ - 2952592 - MARW END
+                    /* const wd = parseInt(100/(delay+duration+buffer+hold))*/
                     pills.delayWidth = delay * 100
                     pills.durationWidth = duration * 100
                     pills.bufferWidth = buffer * 100
                     pills.holdWidth = hold * 100
+                    // CHANGE REQ - 2952592 - MARW BEGIN
+                    if (pills[pill].check_ahead_schedule) { // completed before end date
+                        pills.earlyWidth = (early) * 100
+                        pills.delayWidth = 0
+                        pills.durationWidth = duration * 100
+                        pills.bufferWidth = 0
+                        pills.holdWidth = 0
+                        if (pills[pill].check_before_start) { // completed before start date                           
+                            pills[pill].startDate = (pills[pill].completion_date)
+                            pills.earlyWidth = 100
+                            pills.delayWidth = 0
+                            pills.durationWidth = 0
+                            pills.bufferWidth = 0
+                            pills.holdWidth = 0
+                        }
+                        subSlotUnavailabilities.push(subSlotUnavailable);
+                    }
+                    // CHANGE REQ - 2952592 - MARW END
                 }
             }
 
@@ -98,6 +126,7 @@ odoo.define('project_glasbox.ProjectGanttView', function (require) {
                     buffer: pills.bufferWidth,
                     duration: pills.durationWidth,
                     onhold: pills.holdWidth,
+                    early: pills.earlyWidth,
                     isToday: isToday,
                     style: slotStyle,
                     hasButtons: !this.isGroup && !this.isTotal,
@@ -125,6 +154,13 @@ odoo.define('project_glasbox.ProjectGanttView', function (require) {
             if (!this.isTotal && !this.options.disableDragdrop) {
                 this._setDraggable($pill);
             }
+            /**
+             * As we don't need to show popover of each task in 'Gantt Chart',
+             * so, removed popover.
+             */
+            // if (!this.isGroup) {
+            //     this._bindPillPopover(ev.target);
+            // }
         },
 
         /**
@@ -193,6 +229,27 @@ odoo.define('project_glasbox.ProjectGanttView', function (require) {
                 }
                 return pills;
             }, []);
+
+            /**
+             *  As we don't need to show any decoration and pill count so we removed it.
+             */
+
+            // var maxCount = _.max(this.pills, function (pill) {
+            //     return pill.count;
+            // }).count;
+            // var minColor = 215;
+            // var maxColor = 100;
+            // this.pills.forEach(function (pill) {
+            //     pill.consolidated = true;
+            //     if (self.consolidate && self.consolidationParams.maxValue) {
+            //         pill.status = pill.consolidationExceeded ? 'danger' : 'success';
+            //         pill.display_name = pill.consolidationValue;
+            //     } else {
+            //         var color = minColor - ((pill.count - 1) / maxCount) * (minColor - maxColor);
+            //         pill.style = _.str.sprintf("background-color: rgba(%s, %s, %s, 0.6)", color, color, color);
+            //         pill.display_name = pill.count;
+            //     }
+            // });
         },
     });
 
@@ -213,3 +270,4 @@ odoo.define('project_glasbox.ProjectGanttView', function (require) {
     view_registry.add('project_ganttview', CustomGanttView);
     return CustomGanttView;
 });
+
