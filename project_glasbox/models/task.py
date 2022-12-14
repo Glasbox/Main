@@ -92,6 +92,12 @@ class TaskDependency(models.Model):
     holiday_days = fields.Boolean(compute="_compute_holiday_days")
     # CHANGE REQ - 2952592 - MARW BEGIN
     check_before_start = fields.Boolean(string='Check Completion Before Start Date', copy=True)
+    task_url = fields.Char('Task URL', compute='_get_task_url', help='The full URL to access the task through the website.')
+
+
+    def _get_task_url(self):
+        for record in self:
+            record.task_url = f"https://www.odoo.com/web#id={record.id.origin}&model=project.task&view_type=form"
     # CHANGE REQ - 2952592 - MARW END
 
 
@@ -113,10 +119,12 @@ class TaskDependency(models.Model):
                     record.planned_duration = 1
                     record.date_start = (record.completion_date) 
 
-        for child in self.dependent_task_ids.depending_task_id.ids:
-            task = self.env['project.task'].search([('id','=', child)])
-            task.date_start = (self.get_next_business_day(datetime.now())).replace(hour=7, minute=0)
-            task.date_end = (self.get_forward_next_date(task.date_start, task.planned_duration - 1)).replace(hour=16, minute=0) 
+            for child in record.dependent_task_ids.depending_task_id.ids:
+                task = self.env['project.task'].search([('id','=', child)])
+                #task.date_start = (self.get_next_business_day(datetime.now())).replace(hour=7, minute=0)
+                task.write({'date_start': (self.get_next_business_day(record.completion_date)).replace(hour=7, minute=0)})
+                task.write({'date_end': (self.get_forward_next_date(record.completion_date, task.planned_duration - 1)).replace(hour=16, minute=0)})
+                #task.date_end = (self.get_forward_next_date(task.date_start, task.planned_duration - 1)).replace(hour=16, minute=0) 
     # CHANGE REQ - 2952592 - MARW END
 
     #OVERWRITE
@@ -185,7 +193,7 @@ class TaskDependency(models.Model):
         assigned user.
         """
         for record in self:
-            template = record.env.ref('project_glasbox.task_completion_email_template')
+            template = record.env.ref('project_glasbox.task_completion_email_template_glasbox')
             tasks = record.env['project.task'].search([('dependency_task_ids.task_id', 'in', record.ids)])
             tasks.message_post_with_template(template_id=template.id)
 
@@ -465,11 +473,12 @@ class TaskDependency(models.Model):
         for record in self:
             print(record.date_start,'hello')
             if record.date_start:
+                record.write({'date_start': record.date_start.replace(hour=12, minute=0,second=0)}) # always set to 7am (offset by -5)
                 duration = (record.planned_duration + record.on_hold + record.buffer_time) - 1
                 if duration == 0:
-                    record.write({'date_end': record.date_start + timedelta(hours=8)})
+                    record.write({'date_end': record.date_start + timedelta(hours=9)})
                 else:
-                    record.write({'date_end': record.get_forward_next_date(record.date_start, duration)})
+                    record.write({'date_end': record.get_forward_next_date(record.date_start, duration).replace(hour=21,minute=0,second=0)})
 
 
     @api.depends('l_end_date', 'planned_duration', 'milestone', 'scheduling_mode')
