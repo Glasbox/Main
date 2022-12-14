@@ -82,7 +82,7 @@ odoo.define('project_glasbox.ProjectGanttView', function (require) {
                             pills.bufferWidth = 0
                             pills.holdWidth = 0
                         }
-                        // subSlotUnavailabilities.push(subSlotUnavailable);
+                        //subSlotUnavailabilities.push(subSlotUnavailable);
                     }
                     // CHANGE REQ - 2952592 - MARW END
                 }
