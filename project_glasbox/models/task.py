@@ -471,14 +471,17 @@ class TaskDependency(models.Model):
         date_end = date_start + planned_duration + buffer_time + on_hold
         """
         for record in self:
-            print(record.date_start,'hello')
+            user_tz =timezone(self.env.context['tz'])
+            offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
             if record.date_start:
-                record.write({'date_start': record.date_start.replace(hour=12, minute=0,second=0)}) # always set to 7am (offset by -5)
+                new_start = record.date_start.replace(hour=(7-offset), minute=0,second=0,)
+                record.write({'date_start': new_start}) # always set to 7am (offset by -5)
                 duration = (record.planned_duration + record.on_hold + record.buffer_time) - 1
                 if duration == 0:
-                    record.write({'date_end': record.date_start + timedelta(hours=9)})
+                    record.write({'date_end': new_start + timedelta(hours=8)})
                 else:
-                    record.write({'date_end': record.get_forward_next_date(record.date_start, duration).replace(hour=21,minute=0,second=0)})
+                    new_end = record.get_forward_next_date(record.date_start, duration).replace(hour=(16-offset),minute=0,second=0)
+                    record.write({'date_end': new_end})
 
 
     @api.depends('l_end_date', 'planned_duration', 'milestone', 'scheduling_mode')
