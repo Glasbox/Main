@@ -121,9 +121,14 @@ class TaskDependency(models.Model):
 
             for child in record.dependent_task_ids.depending_task_id.ids:
                 task = self.env['project.task'].search([('id','=', child)])
+                if task.manager_id.tz_offset :
+                    offset = int(task.manager_id.tz_offset[:3])
+                else:
+                    user_tz =timezone(self.env.context['tz'])
+                    offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
                 #task.date_start = (self.get_next_business_day(datetime.now())).replace(hour=7, minute=0)
-                task.write({'date_start': (self.get_next_business_day(record.completion_date)).replace(hour=7, minute=0)})
-                task.write({'date_end': (self.get_forward_next_date(record.completion_date, task.planned_duration - 1)).replace(hour=16, minute=0)})
+                task.write({'date_start': (self.get_next_business_day(record.completion_date)).replace(hour=7, minute=0) - timedelta(hours=offset) })
+                task.write({'date_end': (self.get_forward_next_date(record.completion_date, task.planned_duration - 1)).replace(hour=16, minute=0) - timedelta(hours=offset) })
                 #task.date_end = (self.get_forward_next_date(task.date_start, task.planned_duration - 1)).replace(hour=16, minute=0) 
     # CHANGE REQ - 2952592 - MARW END
 
