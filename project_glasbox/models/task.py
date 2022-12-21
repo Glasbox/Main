@@ -473,7 +473,12 @@ class TaskDependency(models.Model):
         for record in self:
             #user_tz =timezone(self.env.context['tz'])
             #offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
-            offset = int(record.manager_id.tz_offset[:3])
+            #offset = int(record.manager_id.tz_offset[:3])
+             if record.manager_id.tz_offset:
+                offset = int(record.manager_id.tz_offset[:3])
+            else:
+                user_tz =timezone(self.env.context['tz'])
+                offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
             if record.date_start:
                 new_start = record.date_start.replace(hour=(7), minute=0,second=0) - timedelta(hours=offset)
                 record.write({'date_start': new_start}) # always set to 7am (offset by -5)
