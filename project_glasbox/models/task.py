@@ -474,9 +474,9 @@ class TaskDependency(models.Model):
             user_tz =timezone(self.env.context['tz'])
             offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
             if record.date_start:
-                new_start = record.date_start.replace(hour=(7), minute=0,second=0,) - 
+                new_start = record.date_start.replace(hour=(7), minute=0,second=0) - timedelta(hours=offset)
                 record.write({'date_start': new_start}) # always set to 7am (offset by -5)
-                duration = (record.planned_duration + record.on_hold + record.buffer_time) - timedelta(hours=offset)
+                duration = (record.planned_duration + record.on_hold + record.buffer_time) - 1
                 if duration == 0:
                     record.write({'date_end': new_start + timedelta(hours=9)})
                 else:
