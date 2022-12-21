@@ -481,7 +481,7 @@ class TaskDependency(models.Model):
             #offset = int(record.manager_id.tz_offset[:3])
              if record.manager_id.tz_offset:
                 offset = int(record.manager_id.tz_offset[:3])
-            else:
+             else:
                 user_tz =timezone(self.env.context['tz'])
                 offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
             if record.date_start:
