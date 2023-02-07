@@ -91,6 +91,7 @@ class TaskDependency(models.Model):
     ], string="Scheduling Mode", copy=True)
     holiday_days = fields.Boolean(compute="_compute_holiday_days")
     # CHANGE REQ - 2952592 - MARW BEGIN
+    responsible_user_id = fields.Many2one(string='Responsible Member', comodel_name='res.users', store=True)
     check_before_start = fields.Boolean(string='Check Completion Before Start Date', copy=True)
     task_url = fields.Char('Task URL', compute='_get_task_url', help='The full URL to access the task through the website.')
 
@@ -115,13 +116,14 @@ class TaskDependency(models.Model):
                 record.completion_date = datetime.now()
                 # record._check_date_in_holiday(record.completion_date)
     # CHANGE REQ - 2952592 - MARW BEGIN
-                tz_relative_date = record.completion_date + timedelta(hours=offset)
-            for child in record.dependent_task_ids.depending_task_id.ids:
-                task = self.env['project.task'].search([('id','=', child)])
-                if task.manager_id.tz_offset :
-                    offset = int(task.manager_id.tz_offset[:3])
-                task.write({'date_start': (self.get_next_business_day(tz_relative_date).replace(hour=7, minute=0) - timedelta(hours=offset)) })
-                task.write({'date_end': (self.get_forward_next_date((tz_relative_date.replace(hour=16, minute=0) - timedelta(hours=offset)), task.planned_duration - 1))})
+            if (record.completion_date):
+                tz_relative_date = record.completion_date + timedelta(hours=offset) #error here, un-indent?
+                for child in record.dependent_task_ids.depending_task_id.ids:
+                    task = self.env['project.task'].search([('id','=', child)])
+                    if task.manager_id.tz_offset :
+                        offset = int(task.manager_id.tz_offset[:3])
+                    task.write({'date_start': (self.get_next_business_day(tz_relative_date).replace(hour=7, minute=0) - timedelta(hours=offset)) })
+                    task.write({'date_end': (self.get_forward_next_date((tz_relative_date.replace(hour=16, minute=0) - timedelta(hours=offset)), task.planned_duration - 1))})
     # CHANGE REQ - 2952592 - MARW END
 
     #OVERWRITE

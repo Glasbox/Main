@@ -4,12 +4,12 @@
         <record id="task_completion_email_template_glasbox" model="mail.template">
             <field name="name">Project Task: Current task ready </field>
             <field name="model_id" ref="project_glasbox.model_project_task"/>
-            <field name="email_to">${object.user_id.email_formatted | safe}</field>
+            <field name="email_to">${object.responsible_user_id.email_formatted | safe}</field>
             <field name="subject">Task ${object.name} is Ready</field>
             <field name="body_html" type="html">
                 <div style="margin: 0px; padding: 0px;">
                     <p style="margin: 0px; padding: 0px; font-size: 13px;">
-                        Dear ${object.user_id.name},
+                        Dear ${object.responsible_user_id.name},
                         <br /> <br />
                         Previous task has been completed.
                         <br /> <br />
