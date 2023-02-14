@@ -108,22 +108,22 @@ class TaskDependency(models.Model):
         The Completion date is always defaulted to today's date.
         Nobody can set yesterday's or next week’s date as the completion date.
         """
-        user_tz =timezone(self.env.context['tz'])
-        offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
+        utc = timezone('UTC')
         ctx = self.env.context
         for record in self:
             if ctx.get('c_date') and record.completion_date:
                 record.completion_date = datetime.now()
-                # record._check_date_in_holiday(record.completion_date)
     # CHANGE REQ - 2952592 - MARW BEGIN
             if (record.completion_date):
-                tz_relative_date = record.completion_date + timedelta(hours=offset) #error here, un-indent?
+                if record.responsible_user_id:
+                    user_tz = timezone(record.responsible_user_id.tz)
+                else:
+                    user_tz = timezone(record.manager_id.tz)
+                tz_relative_date = user_tz.localize(record.completion_date)
                 for child in record.dependent_task_ids.depending_task_id.ids:
                     task = self.env['project.task'].search([('id','=', child)])
-                    if task.manager_id.tz_offset :
-                        offset = int(task.manager_id.tz_offset[:3])
-                    task.write({'date_start': (self.get_next_business_day(tz_relative_date).replace(hour=7, minute=0) - timedelta(hours=offset)) })
-                    task.write({'date_end': (self.get_forward_next_date((tz_relative_date.replace(hour=16, minute=0) - timedelta(hours=offset)), task.planned_duration - 1))})
+                    task.write({'date_start': (self.get_next_business_day(tz_relative_date.replace(tzinfo=None)).replace(hour=7, minute=0)) })
+                    task.write({'date_end': (self.get_forward_next_date((tz_relative_date.replace(hour=16, minute=0,tzinfo=None)), task.planned_duration - 1))})
     # CHANGE REQ - 2952592 - MARW END
 
     #OVERWRITE
@@ -393,13 +393,8 @@ class TaskDependency(models.Model):
             if task.completion_date and task.date_end and task.completion_date < task.date_end:
                 task.check_ahead_schedule = True
                 # CHANGE REQ 2952592 -MARW START
-                #task.planned_duration = (task.completion_date - task.date_start).days
                 if task.completion_date < task.date_start:
                     task.check_before_start = True
-                    #task.planned_duration = 1
-                # change start and end date to completed date
-                    #task.date_start = (task.completion_date).replace(hour=7, minute=0)
-                    #task.date_end = (task.completion_date).replace(hour=16, minute=0)
                 else:
                     task.check_before_start = False
             else:
@@ -470,27 +465,23 @@ class TaskDependency(models.Model):
         date_end = date_start + planned_duration + buffer_time + on_hold
         """
         for record in self:
-            #user_tz =timezone(self.env.context['tz'])
-            #offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
-            #offset = int(record.manager_id.tz_offset[:3])
-            if record.manager_id.tz_offset :
-                offset = int(record.manager_id.tz_offset[:3])
-            else:
-                user_tz =timezone(self.env.context['tz'])
-                offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
             if record.date_start:
                 new_start = record.date_start
                 if not (record._is_business_day(record.date_start)):
                         new_start = record.get_next_business_day(record.date_start) 
-                new_start = new_start.replace(hour=(7), minute=0,second=0,)  - (timedelta(hours=offset))
-                record.write({'date_start': new_start}) # always set to 7am (offset by -5)
+                utc = timezone('UTC')
+                if record.responsible_user_id:
+                    user_tz = timezone(record.responsible_user_id.tz)
+                else:
+                    user_tz = timezone(record.manager_id.tz)
+                aware_start = user_tz.localize(new_start).replace(hour=7,minute=0,second=0)
+                record.write({'date_start': (aware_start.astimezone(utc)).replace(tzinfo=None)}) 
                 duration = (record.planned_duration + record.on_hold + record.buffer_time) - 1
                 if duration == 0:
-                    record.write({'date_end': new_start + timedelta(hours=9)})
+                    record.write({'date_end':  (aware_start.replace(hour=16,minute=0,second=0).astimezone(utc)).replace(tzinfo=None)})
                 else:
-                    # this new end may be one day extra...
-                    new_end = record.get_forward_next_date(record.date_start, duration).replace(hour=(16),minute=0,second=0) - (timedelta(hours=offset))
-                    record.write({'date_end': new_end})
+                    new_end = user_tz.localize(record.get_forward_next_date(record.date_start, duration)).replace(hour=16,minute=0,second=0)
+                    record.write({'date_end': (new_end.astimezone(utc)).replace(tzinfo=None)})
 
 
     @api.depends('l_end_date', 'planned_duration', 'milestone', 'scheduling_mode')
