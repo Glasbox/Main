@@ -230,7 +230,7 @@ class TaskDependency(models.Model):
         resource_calendar = self.get_calendar()
         day_of_week = resource_calendar.attendance_ids.mapped('dayofweek')
         holidays = self.get_holidays(target_date)
-        #target_date = self._convert_utc_to_calendar_tz(target_date)
+        target_date = self._convert_utc_to_calendar_tz(target_date)
         return str(target_date.weekday()) in day_of_week and target_date.date() not in holidays
 
 
