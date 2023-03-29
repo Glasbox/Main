@@ -97,7 +97,7 @@ class TaskDependency(models.Model):
 
     def _get_task_url(self):
         for record in self:
-            record.task_url = f"https://www.odoo.com/web#id={record.id.origin}&model=project.task&view_type=form"
+            record.task_url = f"https://www.odoo.com/web#id={record.id}&model=project.task&view_type=form"
     # CHANGE REQ - 2952592 - MARW END
 
 
