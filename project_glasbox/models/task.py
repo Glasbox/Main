@@ -65,7 +65,7 @@ class TaskDependency(models.Model):
     planned_duration = fields.Integer(string='Duration', default=1, copy=True)
     buffer_time = fields.Integer(string='Buffer Time', copy=True)
     task_delay = fields.Integer(string='Task Delay', compute='_compute_delay', store=True, copy=True)
-    accumulated_delay = fields.Integer(string='Accumulated Delay', compute='_compute_accumulated_delay', store=True, copy=True)
+    accumulated_delay = fields.Integer(string='Accumulated Delay', compute='_compute_accumulated_delay', store=True, copy=True, recursive=True)
     on_hold = fields.Integer(string="On Hold", copy=True)
     dependency_task_ids = fields.One2many('project.depending.tasks', 'depending_task_id', string="Dependent Task", copy=False)
     dependent_task_ids = fields.One2many('project.depending.tasks', 'task_id', string="Following Task", copy=False)
@@ -119,15 +119,15 @@ class TaskDependency(models.Model):
                     record.planned_duration = 1
                     record.date_start = (record.completion_date) 
 
-            for child in record.dependent_task_ids.depending_task_id.ids:
-                task = self.env['project.task'].search([('id','=', child)])
-                if task.manager_id.tz_offset :
-                    offset = int(task.manager_id.tz_offset[:3])
-                else:
-                    user_tz =timezone(self.env.context['tz'])
-                    offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
-                task.write({'date_start': (self.get_next_business_day(record.completion_date.replace(hour=7, minute=0) - timedelta(hours=offset))) })
-                task.write({'date_end': (self.get_forward_next_date((record.completion_date.replace(hour=16, minute=0) - timedelta(hours=offset)), task.planned_duration - 1))})
+                for child in record.dependent_task_ids.depending_task_id.ids:
+                    task = self.env['project.task'].search([('id','=', child)])
+                    if task.manager_id.tz_offset :
+                        offset = int(task.manager_id.tz_offset[:3])
+                    else:
+                        user_tz =timezone(self.env.context['tz'])
+                        offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
+                    task.write({'date_start': (self.get_next_business_day(record.completion_date.replace(hour=7, minute=0) - timedelta(hours=offset))) })
+                    task.write({'date_end': (self.get_forward_next_date((record.completion_date.replace(hour=16, minute=0) - timedelta(hours=offset)), task.planned_duration - 1))})
     # CHANGE REQ - 2952592 - MARW END
 
     #OVERWRITE
