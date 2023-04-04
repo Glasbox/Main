@@ -54,12 +54,12 @@
                 <field name='check_milestone' invisible='1'/>
                 <field name='check_hold' invisible='1'/>
                 <field name='check_overdue' invisible='1'/>
-                <button title="Finished" attrs="{'invisible':[ ('completion_date', '=', False)]}" icon="fa-check-square-o"/>
-                <button title="Ahead Of Schedule" attrs="{'invisible':[('check_ahead_schedule', '=', False)]}" icon="fa-star"/>
-                <button title="Delay" attrs="{'invisible':[('check_delay', '=', False)]}" icon="fa-clock-o"/>
-                <button title="Milestone" attrs="{'invisible':[('milestone', '!=', True)]}" icon="fa-flag"/>
-                <button title="On Hold" attrs="{'invisible':[('on_hold', '=', 0)]}" icon="fa-hourglass-half"/>
-                <button title="Overdue" attrs="{'invisible':[('check_overdue', '=', False)]}" icon="fa-exclamation"/>
+                <button name="finished" title="Finished" attrs="{'invisible':[ ('completion_date', '=', False)]}" icon="fa-check-square-o" class="gb_task_tree_finished_icon"/>
+                <button name="ahead_of_schedule" title="Ahead Of Schedule" attrs="{'invisible':[('check_ahead_schedule', '=', False)]}" icon="fa-star" class="gb_task_tree_ahead_of_schedule_icon"/>
+                <button name="delay" title="Delay" attrs="{'invisible':[('check_delay', '=', False)]}" icon="fa-clock-o" class="gb_task_tree_delay_icon"/>
+                <button name="milestone" title="Milestone" attrs="{'invisible':[('milestone', '!=', True)]}" icon="fa-flag" class="gb_task_milestone_icon"/>
+                <button name="on_hold" title="On Hold" attrs="{'invisible':[('on_hold', '=', 0)]}" icon="fa-hourglass-half" class="gb_task_on_hold_icon"/>
+                <button name="overdue" title="Overdue" attrs="{'invisible':[('check_overdue', '=', False)]}" icon="fa-exclamation" class="gb_task_overdue_icon"/>
             </xpath>
         </field>
     </record>
