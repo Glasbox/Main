@@ -10,7 +10,7 @@
     "author": "Odoo Inc",
     "website": "http://www.odoo.com",
     "category": "Custom Development",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "license": "OEEL-1",
     "depends": [
         "hr",
@@ -28,6 +28,7 @@
     ],
     "assets": {
         "web.assets_backend": [
+            "project_glasbox/static/src/css/task.css",
             "project_glasbox/static/src/js/gantt_model.js",
             "project_glasbox/static/src/js/gantt_view.js",
         ]
