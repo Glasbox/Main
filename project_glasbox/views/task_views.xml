@@ -20,11 +20,16 @@
                 <field name='check_hold' invisible='1'/>
                 <field name='check_overdue' invisible='1'/>
                 <div class="o_kanban_inline_block d-flex flex-row">
-                    <i title="Finished" attrs="{'invisible':[('completion_date', '=', False)]}" class="fa fa-check-square-o" style="color: #2AAA8A;"/><t/>
-                    <i title="Ahead Of Schedule" attrs="{'invisible':[('check_ahead_schedule', '=', False)]}" class="fa fa-star" style="color: #0000FF; margin: 0 7px;"/><t/>
-                    <i title="Delay" attrs="{'invisible':[('check_delay', '=', False)]}" class="fa fa-clock-o" style="color: #F0E130; margin: 0 7px;"/><t/>
-                    <i title="Milestone" attrs="{'invisible':[('milestone', '!=', True)]}" class="fa fa-flag" style="color: #AAFF00; margin: 0 7px;"/><t/>
-                    <i title="On Hold" attrs="{'invisible':[('on_hold', '=', 0)]}" class="fa fa-hourglass-half" style="color: #000000; margin: 0 7px;"/><t/>
+                    <i title="Finished" attrs="{'invisible':[('completion_date', '=', False)]}" class="fa fa-check-square-o" style="color: #2AAA8A;"/>
+                    <t/>
+                    <i title="Ahead Of Schedule" attrs="{'invisible':[('check_ahead_schedule', '=', False)]}" class="fa fa-star" style="color: #0000FF; margin: 0 7px;"/>
+                    <t/>
+                    <i title="Delay" attrs="{'invisible':[('check_delay', '=', False)]}" class="fa fa-clock-o" style="color: #F0E130; margin: 0 7px;"/>
+                    <t/>
+                    <i title="Milestone" attrs="{'invisible':[('milestone', '!=', True)]}" class="fa fa-flag" style="color: #AAFF00; margin: 0 7px;"/>
+                    <t/>
+                    <i title="On Hold" attrs="{'invisible':[('on_hold', '=', 0)]}" class="fa fa-hourglass-half" style="color: #000000; margin: 0 7px;"/>
+                    <t/>
                     <i title="Overdue" attrs="{'invisible':[('check_overdue', '=', False)]}" class="fa fa-exclamation" style="color: #FF0000; margin: 0 7px;"/>
                 </div>
             </xpath>
@@ -37,7 +42,7 @@
         <field name="inherit_id" ref="project.view_task_tree2"/>
         <field name="arch" type="xml">
             <xpath expr="field[@name='activity_ids']" position="after">
-                <field name='completion_date' invisible='1'/>
+                <field name='completion_date'/>
                 <field name='l_end_date' invisible='1'/>
                 <field name='milestone' invisible='1'/>
                 <field name='on_hold' invisible='1'/>
@@ -49,12 +54,12 @@
                 <field name='check_milestone' invisible='1'/>
                 <field name='check_hold' invisible='1'/>
                 <field name='check_overdue' invisible='1'/>
-                <button title="Finished" class='btn-finished' attrs="{'invisible':[ ('completion_date', '=', False)]}" icon="fa-check-square-o"/>
-                <button title="Ahead Of Schedule" class='btn-schedule' attrs="{'invisible':[('check_ahead_schedule', '=', False)]}" icon="fa-star"/>
-                <button class="btn-delay" title="Delay" attrs="{'invisible':[('check_delay', '=', False)]}" icon="fa-clock-o"/>
-                <button class="btn-milestone" title="Milestone" attrs="{'invisible':[('milestone', '!=', True)]}" icon="fa-flag"/>
-                <button class="btn-hold" title="On Hold" attrs="{'invisible':[('on_hold', '=', 0)]}" icon="fa-hourglass-half"/>
-                <button class="btn-overdue" title="Overdue" attrs="{'invisible':[('check_overdue', '=', False)]}" icon="fa-exclamation"/>
+                <button name="finished" title="Finished" attrs="{'invisible':[ ('completion_date', '=', False)]}" icon="fa-check-square-o" class="gb_task_tree_finished_icon"/>
+                <button name="ahead_of_schedule" title="Ahead Of Schedule" attrs="{'invisible':[('check_ahead_schedule', '=', False)]}" icon="fa-star" class="gb_task_tree_ahead_of_schedule_icon"/>
+                <button name="delay" title="Delay" attrs="{'invisible':[('check_delay', '=', False)]}" icon="fa-clock-o" class="gb_task_tree_delay_icon"/>
+                <button name="milestone" title="Milestone" attrs="{'invisible':[('milestone', '!=', True)]}" icon="fa-flag" class="gb_task_milestone_icon"/>
+                <button name="on_hold" title="On Hold" attrs="{'invisible':[('on_hold', '=', 0)]}" icon="fa-hourglass-half" class="gb_task_on_hold_icon"/>
+                <button name="overdue" title="Overdue" attrs="{'invisible':[('check_overdue', '=', False)]}" icon="fa-exclamation" class="gb_task_overdue_icon"/>
             </xpath>
         </field>
     </record>
@@ -89,13 +94,13 @@
                                     <field name="relation_type" readonly='1'/>
                                 </tree>
                             </field>
-                            
+
                             <field name="dependent_task_ids" readonly='1'>
                                 <tree>
                                     <field name="depending_task_id" />
                                 </tree>
                             </field>
-                  
+
                         </group>
                     </group>
                 </page>
@@ -120,17 +125,22 @@
                 <field name='check_hold' invisible='1'/>
                 <field name='check_overdue' invisible='1'/>
                 <div class="oe_stat_button h1 text-left">
-                    <i title="Finished" attrs="{'invisible':[('completion_date', '=', False)]}" class="fa fa-check-square-o" style="color: #2AAA8A;"/><t/>
-                    <i title="Ahead Of Schedule" attrs="{'invisible':[('check_ahead_schedule', '=', False)]}" class="fa fa-star" style="color: #0000FF; margin: 0 7px;"/><t/>
-                    <i title="Delay" attrs="{'invisible':[('check_delay', '=', False)]}" class="fa fa-clock-o" style="color: #F0E130; margin: 0 7px;"/><t/>
-                    <i title="Milestone" attrs="{'invisible':[('milestone', '!=', True)]}" class="fa fa-flag" style="color: #AAFF00; margin: 0 7px;"/><t/>
-                    <i title="On Hold" attrs="{'invisible':[('on_hold', '=', 0)]}" class="fa fa-hourglass-half" style="color: #000000; margin: 0 7px;"/><t/>
+                    <i title="Finished" attrs="{'invisible':[('completion_date', '=', False)]}" class="fa fa-check-square-o" style="color: #2AAA8A;"/>
+                    <t/>
+                    <i title="Ahead Of Schedule" attrs="{'invisible':[('check_ahead_schedule', '=', False)]}" class="fa fa-star" style="color: #0000FF; margin: 0 7px;"/>
+                    <t/>
+                    <i title="Delay" attrs="{'invisible':[('check_delay', '=', False)]}" class="fa fa-clock-o" style="color: #F0E130; margin: 0 7px;"/>
+                    <t/>
+                    <i title="Milestone" attrs="{'invisible':[('milestone', '!=', True)]}" class="fa fa-flag" style="color: #AAFF00; margin: 0 7px;"/>
+                    <t/>
+                    <i title="On Hold" attrs="{'invisible':[('on_hold', '=', 0)]}" class="fa fa-hourglass-half" style="color: #000000; margin: 0 7px;"/>
+                    <t/>
                     <i title="Overdue" attrs="{'invisible':[('check_overdue', '=', False)]}" class="fa fa-exclamation" style="color: #FF0000; margin: 0 7px;"/>
                 </div>
             </xpath>
         </field>
     </record>
- 
+
     <function name="write" model="ir.model.data">
         <function name="search" model="ir.model.data">
             <value eval="[('module', '=', 'project'), ('name', '=', 'act_project_project_2_project_task_all')]"/>
