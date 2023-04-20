@@ -461,10 +461,16 @@ class TaskDependency(models.Model):
                 finish_dates = completion_dates + end_dates
                 if finish_dates:
                     new_start_date = record.get_next_business_day(max(finish_dates))
-
-                # Only update date_start when the value changes to avoid triggering re-computation of end_date
-                if new_start_date != record.date_start:
-                    record.date_start = new_start_date
+                    if record.manager_id.tz_offset :
+                        offset = int(record.manager_id.tz_offset[:3])
+                    else:
+                        user_tz =timezone(self.env.context['tz'])
+                        offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
+                    # Only update date_start when the value changes to avoid triggering re-computation of end_date
+                    if new_start_date != record.date_start:
+                        new_start = new_start_date.replace(hour=(7), minute=0,second=0,)  - (timedelta(hours=offset)) 
+                        record.write({'date_start': new_start}) # always set to 7am (offset by -5)
+                        #record.date_start = new_start_date
 
 
     @api.depends('planned_duration', 'buffer_time', 'on_hold', 'date_start', 'holiday_days')
