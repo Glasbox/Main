@@ -23,14 +23,14 @@
         "data/mail_template_data.xml",
         "views/task_views.xml",
     ],
-    "qweb": [
-        "static/src/xml/gantt_view.xml",
-    ],
     "assets": {
+        # "web.assets_frontend":[
+        #     "project_glasbox/static/src/**/*",
+        # ],
         "web.assets_backend": [
             "project_glasbox/static/src/css/task.css",
             "project_glasbox/static/src/js/gantt_model.js",
             "project_glasbox/static/src/js/gantt_view.js",
-        ]
+        ],
     },
 }
