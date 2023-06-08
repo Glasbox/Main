@@ -1,9 +1,9 @@
 /** @odoo-module **/
 
 import { patch } from "@web/core/utils/patch";
-import AbstractModel from "@web_gantt/js/gantt_model"
+import AbstractModel from "@web_gantt/js/gantt_model";
 
-patch(AbstractModel, 'adds additional fields', {
+patch(AbstractModel.prototype, 'adds additional fields', {
 
     _getFields() {
         const fields = this._super.apply(this, arguments);
