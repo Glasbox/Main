@@ -22,3 +22,7 @@
 .gb_task_tree_ahead_of_schedule_icon{
 	color: #0000FF;
 }
+
+.o_gantt_row{
+	flex-flow: row;
+}

@@ -38,9 +38,11 @@ class Project(models.Model):
         project = super(Project, self).copy(default)
         #new tasks
         new_tasks = project.mapped('task_ids')
+        # for task in new_tasks:
+
         for task in new_tasks:
-            old = old_tasks.filtered(lambda x: x.name == task.name)
-            dependent_task = []
+            old = old_tasks.filtered(lambda x: x.name == task.name) # should only return one task
+            dependent_tasks = []
             # logic for setting current project on dependency_task's project_id
             for d_task in old.dependency_task_ids:
                 dependent_tasks = new_tasks.filtered(lambda x: x.name == d_task.task_id.name).ids
@@ -53,10 +55,10 @@ class DependingTasks(models.Model):
     _name = "project.depending.tasks"
     _description = "Tasks Dependency (m2m)"
 
-    task_id = fields.Many2one('project.task', required=True, copy=True)
-    project_id = fields.Many2one('project.project', string='Project', related='task_id.project_id')
-    depending_task_id = fields.Many2one('project.task', string='Task',required=True)
-    relation_type = fields.Char('Relation', default="Finish To Start")
+    task_id = fields.Many2one('project.task', store=True)
+    project_id = fields.Many2one('project.project', string='Project', related='task_id.project_id', store=True)
+    depending_task_id = fields.Many2one('project.task', string='Task', store=True)
+    relation_type = fields.Char('Relation', default="Finish To Start", store=True)
 
 
 class TaskDependency(models.Model):
@@ -67,8 +69,8 @@ class TaskDependency(models.Model):
     task_delay = fields.Integer(string='Task Delay', compute='_compute_delay', store=True, copy=True)
     accumulated_delay = fields.Integer(string='Accumulated Delay', compute='_compute_accumulated_delay', store=True, copy=True, recursive=True)
     on_hold = fields.Integer(string="On Hold", store=True, copy=True)
-    dependency_task_ids = fields.One2many('project.depending.tasks', 'depending_task_id', string="Dependent Task", copy=False)
-    dependent_task_ids = fields.One2many('project.depending.tasks', 'task_id', string="Following Task", copy=False)
+    dependency_task_ids = fields.One2many('project.depending.tasks', 'depending_task_id', string="Dependent Task", copy=False, store=True)
+    dependent_task_ids = fields.One2many('project.depending.tasks', 'task_id', string="Following Task", copy=False, store=True)
     date_start = fields.Datetime(string='Starting Date', compute='_compute_start_date', store=True, copy=True)
     date_end = fields.Datetime(string='Ending Date', readonly=True, compute='_compute_end_date', store=True, copy=True)
     completion_date = fields.Datetime(string='Completion Date', store=True, copy=True)
@@ -91,9 +93,18 @@ class TaskDependency(models.Model):
     ], string="Scheduling Mode", copy=True)
     holiday_days = fields.Boolean(compute="_compute_holiday_days")
     # CHANGE REQ - 2952592 - MARW BEGIN
+    stage_id = fields.Many2one('project.task.type', string='Stage', compute='_compute_stage_id',
+        store=True, readonly=False, ondelete='restrict', tracking=True, index=True,
+        default='_get_default_stage_id', group_expand='_read_group_stage_ids',
+        domain="[('project_ids', '=', project_id)]", copy=True, task_dependency_tracking=True)
     check_before_start = fields.Boolean(string='Check Completion Before Start Date', store=True, copy=True)
     task_url = fields.Char('Task URL', compute='_get_task_url', help='The full URL to access the task through the website.')
 
+    def _get_default_stage_id(self):
+        return super()._get_default_stage_id()
+    
+    def _compute_stage_id(self):
+        super()._compute_stage_id()
 
     def _get_task_url(self):
         for record in self:
@@ -497,6 +508,8 @@ class TaskDependency(models.Model):
                 else:
                     new_end = record.get_forward_next_date(record.date_start, duration).replace(hour=(16),minute=0,second=0) - (timedelta(hours=offset))
                     record.write({'date_end': new_end})
+                record.write({'planned_date_begin': record.date_start})
+                record.write({'planned_date_end': record.date_end})
 
 
     @api.depends('l_end_date', 'planned_duration', 'milestone', 'scheduling_mode')
