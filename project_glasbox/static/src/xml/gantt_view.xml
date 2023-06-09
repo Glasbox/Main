@@ -127,7 +127,7 @@
                 <div t-if="!widget.options.hideSidebar" t-attf-class="col-1 o_gantt_row_sidebar flex-grow-1 flex-shrink-0 position-relative #{!widget.name ? 'o_gantt_row_sidebar_empty' : '' }" t-attf-style="white-space: nowrap;">
                     <div class="text-center">
                         <t t-foreach="widget.pills" t-as="pill">
-                            <span t-if="pill.user_id" t-esc="pill.user_id[1]"/>
+                            <span t-if="pill.user_ids" t-esc="pill.user_names"/>
                             <t t-if="!widget.isGroup"><br/></t>
                         </t>
                     </div>
