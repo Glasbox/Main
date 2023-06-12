@@ -18,26 +18,23 @@
             <attribute name="t-attf-class">{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'col-4 d-flex flex-column o_gantt_header_slots':''}}</attribute>
             <attribute name='t-attf-style'>{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'min-width: 100%; background: white;':''}}</attribute>
         </xpath>
-        <xpath expr="//div[hasclass='o_gantt_header_container']/div/div" position="after">
+        <xpath expr="//div[hasclass('o_gantt_row_sidebar')]" position="after">
             <t t-if="widget.fieldsInfo and widget.fieldsInfo.project_id and widget.fieldsInfo.project_id.relation == 'project.project'">
-                <div class="col-1 o_gantt_row_sidebar text-center"><span class="font-weight-bold" style="white-space: nowrap;">Task Mode</span></div>
-                <div class="col-1 o_gantt_row_sidebar text-center"><span class="font-weight-bold" style="white-space: nowrap;">Start Date</span></div>
-                <div class="col-1 o_gantt_row_sidebar text-center"><span class="font-weight-bold" style="white-space: nowrap;">End Date</span></div>
-                <div class="col-1 o_gantt_row_sidebar text-center"><span class="font-weight-bold" style="white-space: nowrap;">Completion Date</span></div>
-                <div class="col-1 o_gantt_row_sidebar text-center"><span class="font-weight-bold" style="white-space: nowrap;">Assigned To</span></div>
+                <div class="col-1 o_gantt_row_sidebar text-center"><span class="fw-bold" style="white-space: nowrap;">Task Mode</span></div>
+                <div class="col-1 o_gantt_row_sidebar text-center"><span class="fw-bold" style="white-space: nowrap;">Start Date</span></div>
+                <div class="col-1 o_gantt_row_sidebar text-center"><span class="fw-bold" style="white-space: nowrap;">End Date</span></div>
+                <div class="col-1 o_gantt_row_sidebar text-center"><span class="fw-bold" style="white-space: nowrap;">Completion Date</span></div>
+                <div class="col-1 o_gantt_row_sidebar text-center"><span class="fw-bold" style="white-space: nowrap;">Assigned To</span></div>
             </t>
         </xpath>
     </t>
     <t t-inherit="web_gantt.GanttView.Row" t-inherit-mode="extension" owl="1">
-        <xpath expr="//div[@t-name='GanttView.Row']/div[hasclass('o_gantt_slots_container')]" position="attributes">
+        <xpath expr="//div[@t-name='GanttView.Row']//div[hasclass('o_gantt_slots_container')]" position="attributes">
             <attribute name='t-attf-class'>{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'o_gantt_slots_container col':''}}</attribute>
             <attribute name='t-attf-style'>{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'min-width: 100%; background: white;':''}}</attribute>
         </xpath>
-        <xpath expr="//div[@t-name='GanttView.Row']/div[hasclass('o_gantt_slots_container')]/div" position="attributes">
+        <xpath expr="//div[@t-name='GanttView.Row']//div[hasclass('o_gantt_slots_container')]/div" position="attributes">
             <attribute name='t-attf-style'>{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'border-bottom: 1px solid #ced4da;':''}}</attribute>
-        </xpath>
-        <xpath expr="//div[@t-name='GanttView.Row']" position="attributes">
-            <attribute name='t-attf-style'>{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'flex-flow: row':''}}</attribute>
         </xpath>
         <xpath expr="//t[@t-foreach='slot.pills']" position="inside">
             <div t-if="widget.isTotal"
@@ -130,7 +127,7 @@
                 <div t-if="!widget.options.hideSidebar" t-attf-class="col-1 o_gantt_row_sidebar flex-grow-1 flex-shrink-0 position-relative #{!widget.name ? 'o_gantt_row_sidebar_empty' : '' }" t-attf-style="white-space: nowrap;">
                     <div class="text-center">
                         <t t-foreach="widget.pills" t-as="pill">
-                            <span t-if="pill.user_id" t-esc="pill.user_id[1]"/>
+                            <span t-if="pill.user_ids" t-esc="pill.user_names"/>
                             <t t-if="!widget.isGroup"><br/></t>
                         </t>
                     </div>
