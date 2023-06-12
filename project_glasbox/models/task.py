@@ -434,11 +434,6 @@ class TaskDependency(models.Model):
         Here, you will get 'negative delay' if task finished earlier than planned.
         """
         for record in self:
-            if record.manager_id.tz_offset :
-                offset = int(record.manager_id.tz_offset[:3])
-            else:
-                user_tz =timezone(self.env.context['tz'])
-                offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
             if record.date_end and record.completion_date:
                 print(record.date_end.date(),record.completion_date.date(),'lmo\n\n\n')
                 # record.task_delay = (record.completion_date.date() - record.date_end.date()).days
