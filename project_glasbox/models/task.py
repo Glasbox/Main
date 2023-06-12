@@ -111,6 +111,15 @@ class TaskDependency(models.Model):
             record.task_url = f"https://www.odoo.com/web#id={record.id}&model=project.task&view_type=form"
     # CHANGE REQ - 2952592 - MARW END
 
+    def update_planned_dates(self):
+        for record in self:
+            if record.date_start:
+                record.write({'planned_date_begin': record.date_start})
+                if record.check_delay:
+                    record.write({'planned_date_end': record.completion_date}) 
+                else:
+                    record.write({'planned_date_end': record.date_end}) 
+
 
     @api.onchange('completion_date')
     def onchange_completion_date(self):
