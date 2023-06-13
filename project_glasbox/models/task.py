@@ -112,13 +112,13 @@ class TaskDependency(models.Model):
     # CHANGE REQ - 2952592 - MARW END
 
     def update_planned_dates(self):
-        for record in self:
-            if record.date_start:
-                record.write({'planned_date_begin': record.date_start})
-                if record.check_delay:
-                    record.write({'planned_date_end': record.completion_date}) 
-                else:
-                    record.write({'planned_date_end': record.date_end}) 
+        for record in self.filtered(lambda task: task.date_start):
+            end = record.completion_date if record.check_delay else record.date_end
+            start, stop = self._calculate_planned_dates(record.date_start, end, calendar= self.env.company.resource_calendar_id)
+            record.write({
+                    'planned_date_begin': start,
+                    'planned_date_end': stop,
+                })
 
 
     @api.onchange('completion_date')
