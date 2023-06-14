@@ -107,7 +107,7 @@
                 </page>
             </xpath>
             <xpath expr="//field[@name='partner_id']" position="after">
-                <field name="delay_due_to"/>
+                <field name="delay_due_to_date" widget="date" attrs="{'required':[('check_delay', '=', True)]}"/>
             </xpath>
             <xpath expr="//field[@name='user_ids']" position="after">
                 <field name="completion_date" context="{'c_date': True}"/>
