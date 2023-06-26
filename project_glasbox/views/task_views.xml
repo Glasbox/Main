@@ -101,7 +101,17 @@
                                     <field name="depending_task_id" />
                                 </tree>
                             </field>
-
+                            <!-- <field name="parents_ids" readonly='0'>
+                                <tree>
+                                    <field name="name" />
+                                </tree>
+                            </field>
+                            <field name="child_ids" readonly='1'>
+                                <tree>
+                                    <field name="name" />
+                                </tree>
+                            </field> -->
+                            
                         </group>
                     </group>
                 </page>
