@@ -93,6 +93,7 @@ class TaskDependency(models.Model):
     ], string="Scheduling Mode", copy=True)
     holiday_days = fields.Boolean(compute="_compute_holiday_days")
     # CHANGE REQ - 2952592 - MARW BEGIN
+    # parents_ids = fields.One2many('project.task', 'child_ids', srting="DEPENDENT TASKs")
     stage_id = fields.Many2one('project.task.type', string='Stage', compute='_compute_stage_id',
         store=True, readonly=False, ondelete='restrict', tracking=True, index=True,
         default='_get_default_stage_id', group_expand='_read_group_stage_ids',
@@ -128,12 +129,13 @@ class TaskDependency(models.Model):
         Nobody can set yesterday's or next week’s date as the completion date.
         """
         ctx = self.env.context
+        offset = self.get_usertz_offset()
         for record in self:
-            if record.manager_id.tz_offset :
-                offset = int(record.manager_id.tz_offset[:3])
-            else:
-                user_tz =timezone(self.env.context['tz'])
-                offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
+            # if record.manager_id.tz_offset :
+            #     offset = int(record.manager_id.tz_offset[:3])
+            # else:
+            #     user_tz =timezone(self.env.context['tz'])
+            #     offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
             if ctx.get('c_date') and record.completion_date:
                 record.completion_date = datetime.now().replace(hour=(16),minute=0,second=0) - (timedelta(hours=offset)) 
                 # record._check_date_in_holiday(record.completion_date)
@@ -146,11 +148,11 @@ class TaskDependency(models.Model):
 
                 for child in record.dependent_task_ids.depending_task_id.ids:
                     task = self.env['project.task'].search([('id','=', child)])
-                    if task.manager_id.tz_offset :
-                        offset = int(task.manager_id.tz_offset[:3])
-                    else:
-                        user_tz =timezone(self.env.context['tz'])
-                        offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
+                    # if task.manager_id.tz_offset :
+                    #     offset = int(task.manager_id.tz_offset[:3])
+                    # else:
+                    #     user_tz =timezone(self.env.context['tz'])
+                    #     offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
                     task.write({'date_start': (self.get_next_business_day(record.completion_date.replace(hour=7, minute=0) - timedelta(hours=offset))) })
                     task.write({'date_end': (self.get_forward_next_date((record.completion_date.replace(hour=16, minute=0) - timedelta(hours=offset)), task.planned_duration - 1))})
     # CHANGE REQ - 2952592 - MARW END
@@ -479,6 +481,7 @@ class TaskDependency(models.Model):
         If a dependency task has a completion date, then completion_date is the task's finish date.
         If a dependency task does not have a completion date but has an end date set, then date_end is the task's finish date.
         """
+        offset = self.get_usertz_offset()
         for record in self:
             if not record.first_task and record.dependency_task_ids:
                 new_start_date = None
@@ -487,11 +490,11 @@ class TaskDependency(models.Model):
                 finish_dates = completion_dates + end_dates
                 if finish_dates:
                     new_start_date = record.get_next_business_day(max(finish_dates))
-                    if record.manager_id.tz_offset :
-                        offset = int(record.manager_id.tz_offset[:3])
-                    else:
-                        user_tz =timezone(self.env.context['tz'])
-                        offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
+                    # if record.manager_id.tz_offset :
+                    #     offset = int(record.manager_id.tz_offset[:3])
+                    # else:
+                    #     user_tz =timezone(self.env.context['tz'])
+                    #     offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
                     # Only update date_start when the value changes to avoid triggering re-computation of end_date
                     if new_start_date != record.date_start:
                         new_start = new_start_date.replace(hour=(7), minute=0,second=0,)  - (timedelta(hours=offset)) 
@@ -505,15 +508,16 @@ class TaskDependency(models.Model):
         Computes the end date of a task applying forward calculation.
         date_end = date_start + planned_duration + buffer_time + on_hold
         """
+        offset = self.get_usertz_offset()
         for record in self:
             #user_tz =timezone(self.env.context['tz'])
             #offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
             #offset = int(record.manager_id.tz_offset[:3])
-            if record.manager_id.tz_offset :
-                offset = int(record.manager_id.tz_offset[:3])
-            else:
-                user_tz =timezone(self.env.context['tz'])
-                offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
+            # if record.manager_id.tz_offset :
+            #     offset = int(record.manager_id.tz_offset[:3])
+            # else:
+            #     user_tz =timezone(self.env.context['tz'])
+            #     offset = int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
             if record.date_start:
                 new_start = record.date_start.replace(hour=(7), minute=0,second=0,)  - (timedelta(hours=offset)) 
                 record.write({'date_start': new_start}) # always set to 7am (offset by -5)
@@ -555,6 +559,10 @@ class TaskDependency(models.Model):
             if record.l_start_date:
                 record._check_date_in_holiday(record.l_start_date)
                 record.l_end_date = record.get_forward_next_date(record.l_start_date, record.planned_duration)
+
+    def get_usertz_offset(self):
+        user_tz =timezone(self.env.context['tz'])
+        return int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
 
     def _set_l_start_date(self):
         pass
