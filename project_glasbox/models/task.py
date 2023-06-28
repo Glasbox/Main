@@ -93,7 +93,7 @@ class TaskDependency(models.Model):
     ], string="Scheduling Mode", copy=True)
     holiday_days = fields.Boolean(compute="_compute_holiday_days")
     # CHANGE REQ - 2952592 - MARW BEGIN
-    # parents_ids = fields.One2many('project.task', 'child_ids', srting="DEPENDENT TASKs")
+    parents_ids = fields.One2many('project.task', 'child_ids', srting="DEPENDENT TASKs")
     stage_id = fields.Many2one('project.task.type', string='Stage', compute='_compute_stage_id',
         store=True, readonly=False, ondelete='restrict', tracking=True, index=True,
         default='_get_default_stage_id', group_expand='_read_group_stage_ids',
@@ -450,7 +450,8 @@ class TaskDependency(models.Model):
                 # record.task_delay = (record.completion_date.date() - record.date_end.date()).days
                 if record.completion_date > record.date_end:
                     record.task_delay = record.get_holidays_between_dates(record.date_end, record.completion_date)
-                    record.write({'planned_date_end': record.completion_date}) 
+                    # record.write({'planned_date_end': record.completion_date}) 
+                    record.planned_date_end = record.completion_date
                 else:
                     task_delay = record.get_holidays_between_dates(record.completion_date, record.date_end)
                     record.task_delay = task_delay * -1
@@ -527,9 +528,9 @@ class TaskDependency(models.Model):
                 else:
                     new_end = record.get_forward_next_date(record.date_start, duration).replace(hour=(16),minute=0,second=0) - (timedelta(hours=offset))
                     record.write({'date_end': new_end})
-                record.write({'planned_date_begin': record.date_start})
+                record.planned_date_begin = record.date_start
                 if record.check_delay is False:
-                    record.write({'planned_date_end': record.date_end})
+                    record.planned_date_end = record.date_end
 
 
     @api.depends('l_end_date', 'planned_duration', 'milestone', 'scheduling_mode')
