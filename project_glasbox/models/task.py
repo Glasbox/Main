@@ -450,7 +450,8 @@ class TaskDependency(models.Model):
                 # record.task_delay = (record.completion_date.date() - record.date_end.date()).days
                 if record.completion_date > record.date_end:
                     record.task_delay = record.get_holidays_between_dates(record.date_end, record.completion_date)
-                    record.write({'planned_date_end': record.completion_date}) 
+                    # record.write({'planned_date_end': record.completion_date}) 
+                    record.planned_date_end = record.completion_date
                 else:
                     task_delay = record.get_holidays_between_dates(record.completion_date, record.date_end)
                     record.task_delay = task_delay * -1
@@ -527,9 +528,9 @@ class TaskDependency(models.Model):
                 else:
                     new_end = record.get_forward_next_date(record.date_start, duration).replace(hour=(16),minute=0,second=0) - (timedelta(hours=offset))
                     record.write({'date_end': new_end})
-                record.write({'planned_date_begin': record.date_start})
+                record.planned_date_begin = record.date_start
                 if record.check_delay is False:
-                    record.write({'planned_date_end': record.date_end})
+                    record.planned_date_end = record.date_end
 
 
     @api.depends('l_end_date', 'planned_duration', 'milestone', 'scheduling_mode')
