@@ -93,7 +93,7 @@ class TaskDependency(models.Model):
     ], string="Scheduling Mode", copy=True)
     holiday_days = fields.Boolean(compute="_compute_holiday_days")
     # CHANGE REQ - 2952592 - MARW BEGIN
-    parents_ids = fields.One2many('project.task', 'child_ids', srting="DEPENDENT TASKs")
+    # parents_ids = fields.One2many('project.task', 'child_ids', srting="DEPENDENT TASKs")
     stage_id = fields.Many2one('project.task.type', string='Stage', compute='_compute_stage_id',
         store=True, readonly=False, ondelete='restrict', tracking=True, index=True,
         default='_get_default_stage_id', group_expand='_read_group_stage_ids',
