@@ -19,7 +19,6 @@
     ],
     "data": [
         "security/task_security.xml",
-        "security/ir.model.access.csv",
         "data/mail_template_data.xml",
         "views/task_views.xml",
         "wizards/task_date_action.xml",
