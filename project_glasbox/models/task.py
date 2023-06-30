@@ -23,45 +23,45 @@ class Company(models.Model):
         return res
 
 
-class Project(models.Model):
-    _inherit = "project.project"
+# class Project(models.Model):
+#     _inherit = "project.project"
 
-    @api.returns('self', lambda value: value.id)
-    def copy(self, default=None):
-        """
-        Logic for copying all the dependency tasks with new updated 'project_id'
-        while duplicating whole the project.
-        """
-        # search old list self.task_ids = old_tasks
-        old_tasks = self.task_ids
-        # then super call
-        project = super(Project, self).copy(default)
-        #new tasks
-        new_tasks = project.mapped('task_ids')
-        # for task in new_tasks:
+#     @api.returns('self', lambda value: value.id)
+#     def copy(self, default=None):
+#         """
+#         Logic for copying all the dependency tasks with new updated 'project_id'
+#         while duplicating whole the project.
+#         """
+#         # search old list self.task_ids = old_tasks
+#         old_tasks = self.task_ids
+#         # then super call
+#         project = super(Project, self).copy(default)
+#         #new tasks
+#         new_tasks = project.mapped('task_ids')
+#         # for task in new_tasks:
 
-        for task in new_tasks:
-            old = old_tasks.filtered(lambda x: x.name == task.name) # should only return one task
-            dependent_tasks = []
-            # logic for setting current project on dependency_task's project_id
-#            for d_task in old.dependency_task_ids:
-            for d_task in old.depend_on_ids:
-#               dependent_tasks = new_tasks.filtered(lambda x: x.name == d_task.task_id.name).ids 
-                dependent_tasks = new_tasks.filtered(lambda x: x.name == d_task.name).ids
-                # task.write({
-                #     'dependency_task_ids': [(0, 0, {'task_id': task_id}) for task_id in dependent_tasks]
-                # })
-                task.write({'depend_on_ids': list(dependent_tasks)})
-        return project
+#         for task in new_tasks:
+#             old = old_tasks.filtered(lambda x: x.name == task.name) # should only return one task
+#             dependent_tasks = []
+#             # logic for setting current project on dependency_task's project_id
+# #            for d_task in old.dependency_task_ids:
+#             for d_task in old.depend_on_ids:
+# #               dependent_tasks = new_tasks.filtered(lambda x: x.name == d_task.task_id.name).ids 
+#                 dependent_tasks = new_tasks.filtered(lambda x: x.name == d_task.name).ids
+#                 # task.write({
+#                 #     'dependency_task_ids': [(0, 0, {'task_id': task_id}) for task_id in dependent_tasks]
+#                 # })
+#                 task.write({'depend_on_ids': list(dependent_tasks)})
+#         return project
 
-class DependingTasks(models.Model):
-    _name = "project.depending.tasks"
-    _description = "Tasks Dependency (m2m)"
+# class DependingTasks(models.Model):
+#     _name = "project.depending.tasks"
+#     _description = "Tasks Dependency (m2m)"
 
-    task_id = fields.Many2one('project.task', store=True, index=True)
-    project_id = fields.Many2one('project.project', string='Project', related='task_id.project_id', store=True, index=True)
-    depending_task_id = fields.Many2one('project.task', string='Task', store=True, index=True)
-    relation_type = fields.Char('Relation', default="Finish To Start", store=True, index=True)
+#     task_id = fields.Many2one('project.task', store=True, index=True)
+#     project_id = fields.Many2one('project.project', string='Project', related='task_id.project_id', store=True, index=True)
+#     depending_task_id = fields.Many2one('project.task', string='Task', store=True, index=True)
+#     relation_type = fields.Char('Relation', default="Finish To Start", store=True, index=True)
 
 
 class TaskDependency(models.Model):
@@ -547,7 +547,8 @@ class TaskDependency(models.Model):
                 record.l_end_date = record.get_forward_next_date(record.l_start_date, record.planned_duration)
 
     def get_usertz_offset(self):
-        user_tz =timezone(self.env.context['tz'])
+        #user_tz =timezone(self.env.context['tz'])
+        user_tz =timezone(self.env.user.tz)
         return int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
 
     def _set_l_start_date(self):
