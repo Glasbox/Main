@@ -562,7 +562,8 @@ class TaskDependency(models.Model):
                 record.l_end_date = record.get_forward_next_date(record.l_start_date, record.planned_duration)
 
     def get_usertz_offset(self):
-        user_tz =timezone(self.env.context['tz'])
+        #user_tz =timezone(self.env.context['tz'])
+        user_tz =timezone(self.env.user.tz)
         return int(user_tz.utcoffset(datetime.now()).total_seconds()/ (60*60))
 
     def _set_l_start_date(self):
