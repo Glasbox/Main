@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-
     <record model="ir.ui.view" id="view_task_kanban_inherited_glassbox">
         <field name="name">project.task.kanban.inherited.glasbox</field>
         <field name="model">project.task</field>
@@ -88,23 +87,9 @@
                             <field name="scheduling_mode" widget="radio" attrs="{'invisible':[('milestone', '!=', True)]}"/>
                             <field name="l_start_date" attrs="{'readonly': ['|', ('milestone', '=', False), '&amp;', ('milestone', '=', True), ('scheduling_mode', '=', '1')]}"/>
                             <field name="l_end_date" attrs="{'readonly': ['|', ('milestone', '=', False), '&amp;', ('milestone', '=', True), ('scheduling_mode', '=', '0')]}"/>
-                            <!-- <field name="dependency_task_ids" attrs="{'invisible':[('first_task', '!=', False)]}">
-                                <tree editable="bottom">
-                                    <field name="project_id" invisible="1"/>
-                                    <field name="task_id" domain="[('project_id','=',parent.project_id)]"/>
-                                    <field name="relation_type" readonly='1'/>
-                                </tree>
-                            </field>
-
-                            <field name="dependent_task_ids" readonly='1'>
-                                <tree>
-                                    <field name="depending_task_id" />
-                                </tree>
-                            </field> -->
                             <field name="depend_on_ids" domain="[('project_id','=', project_id)]" attrs="{'invisible':[('first_task', '=', True)]}" >
                                 <tree editable="bottom">
                                     <field name="name" />
-                                    <!-- <field name="follower_id" domain="[('project_id','=',parent.project_id)]" /> -->
                                 </tree>
                             </field>
                             <field name="dependent_ids" readonly='1'>

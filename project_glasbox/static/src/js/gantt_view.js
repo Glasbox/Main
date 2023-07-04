@@ -35,12 +35,6 @@ patch(GanttRow.prototype, 'enhance gantt features', {
             }
         }
 
-            // const date_diff_indays = function(date1, date2) {
-            // dt1 = new Date(date1);
-            // dt2 = new Date(date2);
-            // return Math.floor((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) ) /(1000 * 60 * 60 * 24));
-            // }
-
         for (const pill in pills) {
             if (pills && pills[pill].task_delay > 0 || pills[pill].planned_duration > 0 || pills[pill].buffer_time > 0 || pills[pill].on_hold > 0) {
                 const delay = pills[pill].task_delay
