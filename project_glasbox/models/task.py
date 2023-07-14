@@ -382,7 +382,7 @@ class TaskDependency(models.Model):
                 delay_lst = record.depend_on_ids.mapped('accumulated_delay')
                 record.accumulated_delay = max(delay_lst) + record.task_delay
 
-    @api.depends('depend_on_ids', 'depend_on_ids.completion_date', 'depend_on_ids.date_end')
+    @api.depends('depend_on_ids', 'depend_on_ids.completion_date', 'depend_on_ids.date_end', 'depend_on_ids.date_start')
     def _compute_start_date(self):
         """
         Computes the start date of a task based on its dependencies. The start date will be one day after the date when the last dependency task finishes.
@@ -390,7 +390,7 @@ class TaskDependency(models.Model):
         If a dependency task does not have a completion date but has an end date set, then date_end is the task's finish date.
         """
         offset = self.get_usertz_offset()
-        for record in self.filtered(lambda task: task.first_task and task.depend_on_ids):
+        for record in self.filtered(lambda task: not task.first_task and task.depend_on_ids):
             new_start_date = None
             completion_dates = record.depend_on_ids.filtered('completion_date').mapped('completion_date')
             end_dates = record.depend_on_ids.filtered(lambda r: not r.completion_date and r.date_end).mapped('date_end')
