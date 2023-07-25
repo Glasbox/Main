@@ -10,7 +10,7 @@
     "author": "Odoo Inc",
     "website": "http://www.odoo.com",
     "category": "Custom Development",
-    "version": "1.0.1",
+    "version": "1.0",
     "license": "OEEL-1",
     "depends": [
         "hr",
@@ -18,8 +18,7 @@
         "web_gantt",
     ],
     "data": [
-        "security/task_security.xml",
-        "security/ir.model.access.csv",
+        # "security/task_security.xml",
         "data/mail_template_data.xml",
         "views/task_views.xml",
         "wizards/task_date_action.xml",
