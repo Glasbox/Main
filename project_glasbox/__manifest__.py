@@ -10,7 +10,7 @@
     "author": "Odoo Inc",
     "website": "http://www.odoo.com",
     "category": "Custom Development",
-    "version": "2.0",
+    "version": "2.1",
     "license": "OEEL-1",
     "depends": [
         "hr",

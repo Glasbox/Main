@@ -28,37 +28,37 @@ class TaskDependency(models.Model):
 
     planned_duration = fields.Integer(string='Duration', default=1, copy=True)
     buffer_time = fields.Integer(string='Buffer Time', copy=True)
-    task_delay = fields.Integer(string='Task Delay', compute='_compute_delay', copy=True)
-    accumulated_delay = fields.Integer(string='Accumulated Delay', compute='_compute_accumulated_delay', copy=True, recursive=True)
-    on_hold = fields.Integer(string="On Hold", copy=True)
-    date_start = fields.Datetime(string='Starting Date', compute='_compute_start_date', store=True, copy=True, recursive=True)
+    task_delay = fields.Integer(string='Task Delay', compute='_compute_delay', store=True, copy=True)
+    accumulated_delay = fields.Integer(string='Accumulated Delay', compute='_compute_accumulated_delay', store=True, copy=True, recursive=True)
+    on_hold = fields.Integer(string="On Hold", store=True, copy=True)
+    date_start = fields.Datetime(string='Starting Date', compute='_compute_start_date', store=True, copy=True)
     date_end = fields.Datetime(string='Ending Date', readonly=True, compute='_compute_end_date', store=True, copy=True)
-    completion_date = fields.Datetime(string='Completion Date', copy=True)
-    check_end_or_comp_date = fields.Datetime(string='Checking End or Completion Date', compute='_compute_end_comp', copy=True)
-    milestone = fields.Boolean(string='Mark as Milestone', default=False, copy=True)
-    first_task = fields.Boolean(string='First Task', default=False, copy=True)
+    completion_date = fields.Datetime(string='Completion Date', store=True, copy=True)
+    check_end_or_comp_date = fields.Datetime(string='Checking End or Completion Date', compute='_compute_end_comp', store=True, copy=True)
+    milestone = fields.Boolean(string='Mark as Milestone', default=False, store=True, copy=True)
+    first_task = fields.Boolean(string='First Task', default=False, store=True, copy=True)
     l_start_date = fields.Datetime(string='Latest Start Date', compute='_compute_l_start_date', inverse='_set_l_start_date', store=True, copy=True)
     l_end_date = fields.Datetime(string='Latest End Date', compute='_compute_l_end_date', inverse='_set_l_end_date', store=True, copy=True)
-    duration_mode = fields.Char(readonly=True, copy=True)
+    duration_mode = fields.Char(readonly=True, store=True, copy=True)
     delay_due_to_date = fields.Datetime(string="Delay Due To", copy=True)
-    check_delay = fields.Boolean(string="Check Delay", compute="_compute_check_delay", copy=True)
-    check_c_date = fields.Boolean(string='Check Whether the Completion Date is set or not', compute="_compute_c_date", copy=True)
-    check_overdue = fields.Boolean(string='Check OverDue', compute="_check_completion_date", copy=True)
-    check_milestone = fields.Boolean(string="Check Milestone", compute="_compute_milestone", copy=True)
-    check_ahead_schedule = fields.Boolean(string="Check Ahead Of Schedule", compute="_compute_ahead", copy=True)
-    check_hold = fields.Boolean(string="Check On Hold", compute="_check_hold", copy=True)
+    check_delay = fields.Boolean(string="Check Delay", compute="_compute_check_delay", store=True, copy=True)
+    check_c_date = fields.Boolean(string='Check Whether the Completion Date is set or not', compute="_compute_c_date", store=True, copy=True)
+    check_overdue = fields.Boolean(string='Check OverDue', compute="_check_completion_date", store=True, copy=True)
+    check_milestone = fields.Boolean(string="Check Milestone", compute="_compute_milestone", store=True, copy=True)
+    check_ahead_schedule = fields.Boolean(string="Check Ahead Of Schedule", compute="_compute_ahead", store=True, copy=True)
+    check_hold = fields.Boolean(string="Check On Hold", compute="_check_hold", store=True, copy=True)
     scheduling_mode = fields.Selection([
         ("0", "Must Start On"),
         ("1", "Must Finish On"),
     ], string="Scheduling Mode", copy=True)
     holiday_days = fields.Boolean(compute="_compute_holiday_days")
-    # parents_ids = fields.One2many('project.task', 'follower_id', string="DEPENDENT TASKs", store=True)
-    # follower_id = fields.Many2one('project.task', string='Follower Task', store=True, default=False)
+    parents_ids = fields.One2many('project.task', 'follower_id', string="DEPENDENT TASKs", store=True)
+    follower_id = fields.Many2one('project.task', string='Follower Task', store=True, default=False)
     stage_id = fields.Many2one('project.task.type', string='Stage', compute='_compute_stage_id',
-        readonly=False, ondelete='restrict', tracking=True, index=True,
+        store=True, readonly=False, ondelete='restrict', tracking=True, index=True,
         default='_get_default_stage_id', group_expand='_read_group_stage_ids',
         domain="[('project_ids', '=', project_id)]", copy=True, task_dependency_tracking=True)
-    check_before_start = fields.Boolean(string='Check Completion Before Start Date', copy=True)
+    check_before_start = fields.Boolean(string='Check Completion Before Start Date', store=True, copy=True)
     task_url = fields.Char('Task URL', compute='_get_task_url', help='The full URL to access the task through the website.')
 
     def _get_default_stage_id(self):
