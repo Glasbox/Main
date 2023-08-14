@@ -40,7 +40,7 @@ class TaskDependency(models.Model):
     l_start_date = fields.Datetime(string='Latest Start Date', compute='_compute_l_start_date', inverse='_set_l_start_date', store=True, copy=True)
     l_end_date = fields.Datetime(string='Latest End Date', compute='_compute_l_end_date', inverse='_set_l_end_date', store=True, copy=True)
     duration_mode = fields.Char(readonly=True, store=True, copy=True)
-    delay_due_to_date = fields.Datetime(string="Delay Due To", copy=True)
+    delay_due_to_date = fields.Char(string="Delay Due To", copy=True)
     check_delay = fields.Boolean(string="Check Delay", compute="_compute_check_delay", store=True, copy=True)
     check_c_date = fields.Boolean(string='Check Whether the Completion Date is set or not', compute="_compute_c_date", store=True, copy=True)
     check_overdue = fields.Boolean(string='Check OverDue', compute="_check_completion_date", store=True, copy=True)
