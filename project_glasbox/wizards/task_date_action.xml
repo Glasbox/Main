@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.actions.server" id="action_update_task_planned_dates">
+        <field name="name">Update Tasks' Planned Dates</field>
+        <field name="model_id" ref="project.model_project_task"/>
+        <field name="binding_model_id" ref="project.model_project_task"/>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records.update_planned_dates()
+        </field>
+    </record>
+</odoo>

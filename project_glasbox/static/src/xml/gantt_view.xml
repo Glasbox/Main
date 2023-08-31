@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
-    <t t-inherit="web_gantt.GanttView" t-inherit-mode="extension">
+    <t t-inherit="web_gantt.GanttView" t-inherit-mode="extension" owl="1">
         <xpath expr="//div[hasclass('o_gantt_row_sidebar')]" position="attributes">
             <attribute name='t-attf-class'>{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'col-1 o_gantt_row_sidebar text-center':''}}</attribute>
             <attribute name='t-attf-style'>{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'white-space: nowrap;':''}}</attribute>
@@ -18,26 +18,23 @@
             <attribute name="t-attf-class">{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'col-4 d-flex flex-column o_gantt_header_slots':''}}</attribute>
             <attribute name='t-attf-style'>{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'min-width: 100%; background: white;':''}}</attribute>
         </xpath>
-        <xpath expr="//div[@class='o_gantt_view']/div/div/div" position="after">
+        <xpath expr="//div[hasclass('o_gantt_row_sidebar')]" position="after">
             <t t-if="widget.fieldsInfo and widget.fieldsInfo.project_id and widget.fieldsInfo.project_id.relation == 'project.project'">
-                <div class="col-1 o_gantt_row_sidebar text-center"><span class="font-weight-bold" style="white-space: nowrap;">Task Mode</span></div>
-                <div class="col-1 o_gantt_row_sidebar text-center"><span class="font-weight-bold" style="white-space: nowrap;">Start Date</span></div>
-                <div class="col-1 o_gantt_row_sidebar text-center"><span class="font-weight-bold" style="white-space: nowrap;">End Date</span></div>
-                <div class="col-1 o_gantt_row_sidebar text-center"><span class="font-weight-bold" style="white-space: nowrap;">Completion Date</span></div>
-                <div class="col-1 o_gantt_row_sidebar text-center"><span class="font-weight-bold" style="white-space: nowrap;">Assigned To</span></div>
+                <div class="col-1 o_gantt_row_sidebar text-center"><span class="fw-bold" style="white-space: nowrap;">Task Mode</span></div>
+                <div class="col-1 o_gantt_row_sidebar text-center"><span class="fw-bold" style="white-space: nowrap;">Start Date</span></div>
+                <div class="col-1 o_gantt_row_sidebar text-center"><span class="fw-bold" style="white-space: nowrap;">End Date</span></div>
+                <div class="col-1 o_gantt_row_sidebar text-center"><span class="fw-bold" style="white-space: nowrap;">Completion Date</span></div>
+                <div class="col-1 o_gantt_row_sidebar text-center"><span class="fw-bold" style="white-space: nowrap;">Assigned To</span></div>
             </t>
         </xpath>
     </t>
-    <t t-inherit="web_gantt.GanttView.Row" t-inherit-mode="extension">
-        <xpath expr="//div[@t-name='GanttView.Row']/div[hasclass('o_gantt_slots_container')]" position="attributes">
+    <t t-inherit="web_gantt.GanttView.Row" t-inherit-mode="extension" owl="1">
+        <xpath expr="//div[@t-name='GanttView.Row']//div[hasclass('o_gantt_slots_container')]" position="attributes">
             <attribute name='t-attf-class'>{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'o_gantt_slots_container col':''}}</attribute>
             <attribute name='t-attf-style'>{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'min-width: 100%; background: white;':''}}</attribute>
         </xpath>
-        <xpath expr="//div[@t-name='GanttView.Row']/div[hasclass('o_gantt_slots_container')]/div" position="attributes">
+        <xpath expr="//div[@t-name='GanttView.Row']//div[hasclass('o_gantt_slots_container')]/div" position="attributes">
             <attribute name='t-attf-style'>{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'border-bottom: 1px solid #ced4da;':''}}</attribute>
-        </xpath>
-        <xpath expr="//div[@t-name='GanttView.Row']" position="attributes">
-            <attribute name='t-attf-style'>{{widget.fieldsInfo &amp;&amp; widget.fieldsInfo.project_id &amp;&amp; widget.fieldsInfo.project_id.relation == 'project.project' ? 'flex-flow: row':''}}</attribute>
         </xpath>
         <xpath expr="//t[@t-foreach='slot.pills']" position="inside">
             <div t-if="widget.isTotal"
@@ -78,6 +75,11 @@
                     t-attf-class="o_gantt_pill position-relative"
                     t-attf-style="width: #{delay + '%'}; background-color: #{delay > 0 ? '#FFBF00' : '#71959e'}; #{widget.options.isGroup ? pill.style : ''}"
                     />
+                <div
+                    t-att-data-id="pill.id"
+                    t-attf-class="o_gantt_pill position-relative"
+                    t-attf-style="width: #{early + '%'}; background-color: #{early > 0 ? '#00BF00' : '#71959e'}; #{widget.options.isGroup ? pill.style : ''}"
+                    />
             </div>
         </xpath>
         <xpath expr="//div[@t-if='!widget.options.hideSidebar']" position="after">
@@ -101,7 +103,7 @@
                 <div t-if="!widget.options.hideSidebar" t-attf-class="col-1 o_gantt_row_sidebar flex-grow-1 flex-shrink-0 position-relative #{!widget.name ? 'o_gantt_row_sidebar_empty' : '' }" t-attf-style="white-space: nowrap;">
                     <div class="text-center">
                         <t t-foreach="widget.pills" t-as="pill">
-                            <span t-if="pill.date_start" t-esc="pill.date_start.format('DD/MM/YYYY')"/>
+                            <span t-if="pill.date_start" t-esc="pill.date_start.format('MM/DD/YYYY')"/>
                             <t t-if="!widget.isGroup"><br/></t>
                         </t>
                     </div>
@@ -109,7 +111,7 @@
                 <div t-if="!widget.options.hideSidebar" t-attf-class="col-1 o_gantt_row_sidebar flex-grow-1 flex-shrink-0 position-relative #{!widget.name ? 'o_gantt_row_sidebar_empty' : '' }" t-attf-style="white-space: nowrap;">
                     <div class="text-center">
                         <t t-foreach="widget.pills" t-as="pill">
-                            <span t-if="pill.date_end" t-esc="pill.date_end.format('DD/MM/YYYY')"/>
+                            <span t-if="pill.date_end" t-esc="pill.date_end.format('MM/DD/YYYY')"/>
                             <t t-if="!widget.isGroup"><br/></t>
                         </t>
                     </div>
@@ -117,7 +119,7 @@
                 <div t-if="!widget.options.hideSidebar" t-attf-class="col-1 o_gantt_row_sidebar flex-grow-1 flex-shrink-0 position-relative #{!widget.name ? 'o_gantt_row_sidebar_empty' : '' }" t-attf-style="white-space: nowrap;">
                     <div class="text-center">
                         <t t-foreach="widget.pills" t-as="pill">
-                            <span t-if="pill.completion_date" t-esc="pill.completion_date.format('DD/MM/YYYY')"/>
+                            <span t-if="pill.completion_date" t-esc="pill.completion_date.format('MM/DD/YYYY')"/>
                             <t t-if="!widget.isGroup"><br/></t>
                         </t>
                     </div>
@@ -125,7 +127,7 @@
                 <div t-if="!widget.options.hideSidebar" t-attf-class="col-1 o_gantt_row_sidebar flex-grow-1 flex-shrink-0 position-relative #{!widget.name ? 'o_gantt_row_sidebar_empty' : '' }" t-attf-style="white-space: nowrap;">
                     <div class="text-center">
                         <t t-foreach="widget.pills" t-as="pill">
-                            <span t-if="pill.user_id" t-esc="pill.user_id[1]"/>
+                            <span t-if="pill.user_ids" t-esc="pill.user_names"/>
                             <t t-if="!widget.isGroup"><br/></t>
                         </t>
                     </div>
