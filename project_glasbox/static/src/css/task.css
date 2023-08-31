@@ -1,27 +1,28 @@
-.btn-finished{
+.gb_task_tree_finished_icon{
 	color: #2AAA8A;
 }
 
-.btn-delay{
+
+.gb_task_tree_delay_icon{
 	color: #F0E130;
 }
 
-.btn-early{
-	color: #00FFFF;
-}
-
-.btn-milestone{
+.gb_task_milestone_icon{
 	color: #AAFF00;
 }
 
-.btn-hold{
+.gb_task_on_hold_icon{
 	color: #000000;
 }
 
-.btn-overdue{
+.gb_task_overdue_icon{
 	color: #FF0000;
 }
 
-.btn-schedule{
+.gb_task_tree_ahead_of_schedule_icon{
 	color: #0000FF;
+}
+
+.o_gantt_row{
+	flex-flow: row;
 }
