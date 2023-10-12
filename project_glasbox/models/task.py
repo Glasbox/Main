@@ -27,10 +27,10 @@ class TaskDependency(models.Model):
     _inherit = "project.task"
 
     planned_duration = fields.Integer(string='Planned Duration', default=1, copy=True)
-    buffer_time = fields.Integer(string='Buffer Time', copy=False)
+    buffer_time = fields.Integer(string='Buffer Time', copy=True)
     task_delay = fields.Integer(string='Task Delay', compute='_compute_delay', store=True, copy=False)
     accumulated_delay = fields.Integer(string='Accumulated Delay', compute='_compute_accumulated_delay', store=True, copy=False, recursive=True)
-    on_hold = fields.Integer(string="On Hold", store=True, copy=False)
+    on_hold = fields.Integer(string="On Hold", store=True, copy=True)
     date_start = fields.Datetime(string='Starting Date', compute='_compute_start_date', store=True, copy=False, recursive=True)
     date_end = fields.Datetime(string='Ending Date', readonly=True, compute='_compute_end_date', store=True, copy=False)
     completion_date = fields.Datetime(string='Completion Date', store=True, copy=False)
