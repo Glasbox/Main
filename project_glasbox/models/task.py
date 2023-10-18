@@ -130,9 +130,9 @@ class TaskDependency(models.Model):
         Read-only field for non-milestone tasks.
         """
         for record in self.filtered(lambda task: task.depend_on_ids and task.l_start_date):
-            for task in record.depend_on_ids:
-                duration = timedelta(task.task_id.planned_duration) - timedelta(task.task_id.on_hold)
-                task.task_id.write({'l_start_date': task.task_id.get_backward_next_date(task.task_id.l_end_date, duration.days)})
+            for task in record.depend_on_ids:            
+                duration = timedelta(task.planned_duration) - timedelta(task.on_hold)
+                task.write({'l_start_date': task.get_backward_next_date(task.l_end_date, duration.days)})
 
     def _l_end_date(self):
         """
@@ -143,7 +143,7 @@ class TaskDependency(models.Model):
         """
         for record in self.filtered(lambda task: task.depend_on_ids and task.l_start_date):
             for task in record.depend_on_ids:
-                task.task_id.write({'l_end_date': task.task_id.get_previous_business_day(record.l_start_date)})
+                task.write({'l_end_date': task.get_previous_business_day(record.l_start_date)})
 
     def _compute_holiday_days(self):
         """Recompute holiday days for tasks that have a start date, an end date, and are not completed yet"""
