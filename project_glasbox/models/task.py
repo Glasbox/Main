@@ -396,26 +396,28 @@ class TaskDependency(models.Model):
                 delay_lst = record.depend_on_ids.mapped('accumulated_delay')
                 record.accumulated_delay = max(delay_lst) + record.task_delay
 
-    @api.depends('depend_on_ids', 'depend_on_ids.completion_date', 'depend_on_ids.date_end', 'depend_on_ids.date_start')
+    @api.depends('depend_on_ids', 'depend_on_ids.completion_date', 'depend_on_ids.date_end') #, 'depend_on_ids.date_start')
     def _compute_start_date(self):
         """
         Computes the start date of a task based on its dependencies. The start date will be one day after the date when the last dependency task finishes.
         If a dependency task has a completion date, then completion_date is the task's finish date.
         If a dependency task does not have a completion date but has an end date set, then date_end is the task's finish date.
+        Skip on freshly copied projects
         """
-        offset = self.get_usertz_offset()
-        for record in self.filtered(lambda task: not task.first_task and task.depend_on_ids):
-            new_start_date = None
-            completion_dates = record.depend_on_ids.filtered('completion_date').mapped('completion_date')
-            end_dates = record.depend_on_ids.filtered(lambda r: not r.completion_date and r.date_end).mapped('date_end')
-            if finish_dates := completion_dates + end_dates:
-                new_start_date = record.get_next_business_day(max(finish_dates))
-                # Only update date_start when the value changes to avoid triggering re-computation of end_date
-                if new_start_date != record.date_start:
-                    new_start = new_start_date.replace(hour=(7), minute=0, second=0) - (timedelta(hours=offset))
-                    record.write({'date_start': new_start})  # always set to 7am (offset by -5)
+        if "(copy)" not in self.project_id.name:
+            offset = self.get_usertz_offset()
+            for record in self.filtered(lambda task: not task.first_task and task.depend_on_ids):
+                new_start_date = None
+                completion_dates = record.depend_on_ids.filtered('completion_date').mapped('completion_date')
+                end_dates = record.depend_on_ids.filtered(lambda r: not r.completion_date and r.date_end).mapped('date_end')
+                if finish_dates := completion_dates + end_dates:
+                    new_start_date = record.get_next_business_day(max(finish_dates))
+                    # Only update date_start when the value changes to avoid triggering re-computation of end_date
+                    if new_start_date != record.date_start:
+                        new_start = new_start_date.replace(hour=(7), minute=0, second=0) - (timedelta(hours=offset))
+                        record.write({'date_start': new_start})  # always set to 7am (offset by -5)
 
-    @api.depends('planned_duration', 'buffer_time', 'on_hold', 'date_start', 'holiday_days')
+    @api.depends('planned_duration', 'buffer_time', 'on_hold', 'date_start')
     def _compute_end_date(self):
         """
         Computes the end date of a task applying forward calculation.
@@ -427,18 +429,19 @@ class TaskDependency(models.Model):
         if len(self.display_project_id) == 1:
             offset = self.get_usertz_offset()
             for record in self.filtered(lambda task: task.date_start):
-                new_start = record.date_start.replace(hour=(7), minute=0, second=0) - (timedelta(hours=offset))
-                record.write({'date_start': new_start})  # always set to 7am (offset by -5)
-                duration = (record.planned_duration + record.on_hold + record.buffer_time) - 1
-                if duration == 0:
-                    record.write({'date_end': new_start + timedelta(hours=9)})
-                else:
-                    new_end = record.get_forward_next_date(record.date_start, duration).replace(hour=(16), minute=0, second=0) - (timedelta(hours=offset))
-                    record.write({'date_end': new_end})
-                record.planned_date_begin = record.date_start
-                if record.check_delay is False:
-                    record.planned_date_end = record.date_end
-                    record.update_planned_dates()
+                if "(copy)" not in record.project_id.name:
+                    start = record.date_start.replace(hour=(7), minute=0, second=0) - (timedelta(hours=offset))
+                    # record.write({'date_start': start})  # always set to 7am (offset by -5)
+                    duration = (record.planned_duration + record.on_hold + record.buffer_time) - 1
+                    if duration == 0:
+                        record.write({'date_end': start + timedelta(hours=9)})
+                    else:
+                        new_end = record.get_forward_next_date(record.date_start, duration).replace(hour=(16), minute=0, second=0) - (timedelta(hours=offset))
+                        record.write({'date_end': new_end})
+                    record.planned_date_begin = record.date_start
+                    if record.check_delay is False:
+                        record.planned_date_end = record.date_end
+                        record.update_planned_dates()
 
     @api.depends('l_end_date', 'planned_duration', 'milestone', 'scheduling_mode')
     def _compute_l_start_date(self):
