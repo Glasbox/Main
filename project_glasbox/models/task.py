@@ -41,8 +41,8 @@ class TaskDependency(models.Model):
     task_delay = fields.Integer(string='Task Delay', compute='_compute_delay', store=True, copy=False)
     accumulated_delay = fields.Integer(string='Accumulated Delay', compute='_compute_accumulated_delay', store=True, copy=False, recursive=True)
     on_hold = fields.Integer(string="On Hold", store=True, copy=True)
-    date_start = fields.Datetime(string='Starting Date', compute='_compute_start_date', store=True, copy=False, recursive=True)
-    date_end = fields.Datetime(string='Ending Date', readonly=True, compute='_compute_end_date', store=True, copy=False)
+    date_start = fields.Datetime(string='Starting Date', compute='_compute_start_date', store=True, copy=False, recursive=True, default=None)
+    date_end = fields.Datetime(string='Ending Date', readonly=True, compute='_compute_end_date', store=True, copy=False, default=None)
     completion_date = fields.Datetime(string='Completion Date', store=True, copy=False)
     check_end_or_comp_date = fields.Datetime(string='Checking End or Completion Date', compute='_compute_end_comp', store=True, copy=False)
     milestone = fields.Boolean(string='Mark as Milestone', default=False, store=True, copy=True)
@@ -431,7 +431,7 @@ class TaskDependency(models.Model):
             for record in self.filtered(lambda task: task.date_start):
                 if "(copy)" not in record.project_id.name:
                     start = record.date_start.replace(hour=(7), minute=0, second=0) - (timedelta(hours=offset))
-                    # record.write({'date_start': start})  # always set to 7am (offset by -5)
+                    record.write({'date_start': start})  # always set to 7am (offset by -5)
                     duration = (record.planned_duration + record.on_hold + record.buffer_time) - 1
                     if duration == 0:
                         record.write({'date_end': start + timedelta(hours=9)})
