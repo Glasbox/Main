@@ -22,15 +22,15 @@ class Company(models.Model):
             tasks._compute_holiday_days()
         return res
 
-# class ProjectCopy(models.Model):
-#     _inherit = "project.project"
-
-#     copied = fields.Boolean(default=False, copy=False)
+class ProjectCopy(models.Model):
+    _inherit = "project.project"
     
-#     def copy(self, default=None):
-#         new_project = super(ProjectCopy, self).copy(default)
-#         new_project.copied = True
-#         return new_project
+    def copy(self, default=None):
+        new_project = super(ProjectCopy, self).copy(default)
+        for task in new_project.tasks:
+            task.date_start = None
+            task.date_end = None
+        return new_project
 
 
 class TaskDependency(models.Model):
@@ -426,22 +426,22 @@ class TaskDependency(models.Model):
         delete later: when being duplicated this func is called with all tasks on both og and new project
         check for when len(self.display_project_id) is 2 containing both projects, lack of context workaround
         """
-        if len(self.display_project_id) == 1:
-            offset = self.get_usertz_offset()
-            for record in self.filtered(lambda task: task.date_start):
-                if "(copy)" not in record.project_id.name:
-                    start = record.date_start.replace(hour=(7), minute=0, second=0) - (timedelta(hours=offset))
-                    record.write({'date_start': start})  # always set to 7am (offset by -5)
-                    duration = (record.planned_duration + record.on_hold + record.buffer_time) - 1
-                    if duration == 0:
-                        record.write({'date_end': start + timedelta(hours=9)})
-                    else:
-                        new_end = record.get_forward_next_date(record.date_start, duration).replace(hour=(16), minute=0, second=0) - (timedelta(hours=offset))
-                        record.write({'date_end': new_end})
-                    record.planned_date_begin = record.date_start
-                    if record.check_delay is False:
-                        record.planned_date_end = record.date_end
-                        record.update_planned_dates()
+        # if len(self.display_project_id) == 1:
+        offset = self.get_usertz_offset()
+        for record in self.filtered(lambda task: task.date_start):
+            if "(copy)" not in record.project_id.name:
+                start = record.date_start.replace(hour=(7), minute=0, second=0) - (timedelta(hours=offset))
+                record.write({'date_start': start})  # always set to 7am (offset by -5)
+                duration = (record.planned_duration + record.on_hold + record.buffer_time) - 1
+                if duration == 0:
+                    record.write({'date_end': start + timedelta(hours=9)})
+                else:
+                    new_end = record.get_forward_next_date(record.date_start, duration).replace(hour=(16), minute=0, second=0) - (timedelta(hours=offset))
+                    record.write({'date_end': new_end})
+                record.planned_date_begin = record.date_start
+                if record.check_delay is False:
+                    record.planned_date_end = record.date_end
+                    record.update_planned_dates()
 
     @api.depends('l_end_date', 'planned_duration', 'milestone', 'scheduling_mode')
     def _compute_l_start_date(self):
