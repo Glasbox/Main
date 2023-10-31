@@ -404,9 +404,9 @@ class TaskDependency(models.Model):
         If a dependency task does not have a completion date but has an end date set, then date_end is the task's finish date.
         Skip on freshly copied projects
         """
-        if "(copy)" not in self.project_id.name:
-            offset = self.get_usertz_offset()
-            for record in self.filtered(lambda task: not task.first_task and task.depend_on_ids):
+        offset = self.get_usertz_offset()
+        for record in self.filtered(lambda task: not task.first_task and task.depend_on_ids):
+            if "(copy)" not in record.project_id.name:
                 new_start_date = None
                 completion_dates = record.depend_on_ids.filtered('completion_date').mapped('completion_date')
                 end_dates = record.depend_on_ids.filtered(lambda r: not r.completion_date and r.date_end).mapped('date_end')
