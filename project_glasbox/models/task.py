@@ -41,7 +41,7 @@ class TaskDependency(models.Model):
     task_delay = fields.Integer(string='Task Delay', compute='_compute_delay', store=True, copy=False)
     accumulated_delay = fields.Integer(string='Accumulated Delay', compute='_compute_accumulated_delay', store=True, copy=False, recursive=True)
     on_hold = fields.Integer(string="On Hold", store=True, copy=True)
-    date_start = fields.Datetime(string='Starting Date', compute='_compute_start_date', store=True, copy=False, recursive=True, default=None)
+    date_start = fields.Datetime(string='Starting Date', store=True, compute='_compute_start_date', copy=False, recursive=True, default=None)
     date_end = fields.Datetime(string='Ending Date', readonly=True, compute='_compute_end_date', store=True, copy=False, default=None)
     completion_date = fields.Datetime(string='Completion Date', store=True, copy=False)
     check_end_or_comp_date = fields.Datetime(string='Checking End or Completion Date', compute='_compute_end_comp', store=True, copy=False)
@@ -127,8 +127,8 @@ class TaskDependency(models.Model):
                 record._l_end_date()
             if 'l_end_date' in vals and vals['l_end_date']:
                 record._l_end_date()
-            if 'completion_date' in vals and vals['completion_date']:
-                record._send_mail_template()
+            # if 'completion_date' in vals and vals['completion_date']:
+            #     record._send_mail_template() NO LONGER NEEDED
         return res
     
     # def copy(self, default=None):
@@ -172,17 +172,18 @@ class TaskDependency(models.Model):
 
             record.holiday_days = holidays
 
-    def _send_mail_template(self):
-        """
-        Sends email to the assigned user of A3 task, when it's dependent tasks
-        A1's completion date is set and A2's completion date is not set.
-        Whenever, A2's completion date is set, mail will be automatically sent to the A3 Task's
-        assigned user.
-        """
-        for record in self:
-            template = record.env.ref('project_glasbox.task_completion_email_template_glasbox')
-            tasks = record.env['project.task'].search([('depend_on_ids', 'in', record.ids)])
-            tasks.message_post_with_template(template_id=template.id)
+    # NO LONGER NEEDED
+    # def _send_mail_template(self):
+    #     """
+    #     Sends email to the assigned user of A3 task, when it's dependent tasks
+    #     A1's completion date is set and A2's completion date is not set.
+    #     Whenever, A2's completion date is set, mail will be automatically sent to the A3 Task's
+    #     assigned user.
+    #     """
+    #     for record in self:
+    #         template = record.env.ref('project_glasbox.task_completion_email_template_glasbox')
+    #         tasks = record.env['project.task'].search([('depend_on_ids', 'in', record.ids)])
+    #         tasks.message_post_with_template(template_id=template.id)
 
     def _convert_utc_to_calendar_tz(self, date_naive):
         """
@@ -404,9 +405,9 @@ class TaskDependency(models.Model):
         If a dependency task does not have a completion date but has an end date set, then date_end is the task's finish date.
         Skip on freshly copied projects
         """
-        if "(copy)" not in self.project_id.name:
-            offset = self.get_usertz_offset()
-            for record in self.filtered(lambda task: not task.first_task and task.depend_on_ids):
+        offset = self.get_usertz_offset()
+        for record in self.filtered(lambda task: not task.first_task and task.depend_on_ids):
+            if "(copy)" not in record.project_id.name:
                 new_start_date = None
                 completion_dates = record.depend_on_ids.filtered('completion_date').mapped('completion_date')
                 end_dates = record.depend_on_ids.filtered(lambda r: not r.completion_date and r.date_end).mapped('date_end')
